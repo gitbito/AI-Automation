@@ -1,0 +1,1 @@
+Generate documentation in brief in MD format for the code below, include details how to run code if required and document it according to the language standards of the language in which code is written:
