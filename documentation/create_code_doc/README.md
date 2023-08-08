@@ -5,7 +5,7 @@ This script is used to generate documentation for files in a specified folder an
 
 ## Usage
 ```bash
-./script.sh [folder_name]
+./createdoc.sh [folder_name]
 ```
 
 ## Prerequisites
@@ -75,7 +75,7 @@ echo "Documentation created in $doc_folder"
 2. Navigate to the directory where the script is located.
 3. Run the following command:
    ```bash
-   ./script.sh [folder_name]
+   ./createdoc.sh [folder_name]
    ```
    Replace `[folder_name]` with the name of the folder for which documentation needs to be generated.
 
