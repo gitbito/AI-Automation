@@ -1,0 +1,36 @@
+Given below are Code Documentation Guidelines:
+To ensure that the code is easily understandable and can be used seamlessly by all stakeholders, follow the guidelines below to document the various elements in the code file and the format used is Markdown format
+
+-Where required information is available provide header comments:
+--Provide a brief overview of the purpose of the code file.
+--Note any dependencies or external libraries used.
+
+-Class/Module Documentation if applicable:
+--Describe the purpose of each class or module.
+--If the class or module is part of a larger system or library, describe its role within that system.
+--List any key methods, attributes, or functionalities provided by the class or module.
+
+-Function/Method Documentation if applicable:
+--Provide a brief summary of what the function or method does.
+--Document each parameter: its type, purpose, and any default values.
+--Mention any return values, their types, and what they represent.
+--Note any exceptions the function/method might raise and under what conditions.
+
+-Code Block Comments:
+--For complex or non-intuitive blocks of code, provide comments explaining the logic and flow.
+--If using any algorithms or techniques that are not straightforward, provide references or brief explanations.
+
+-Whenever possible, provide small snippets of how to use the function, class, or module.
+This is particularly helpful for libraries or tools meant to be used by other developers.
+
+-Edge Cases and Assumptions:
+--Note any assumptions the code makes (e.g., input data will always be in a certain format).
+--Describe how the code behaves under edge cases or unexpected inputs.
+--If the code is based on a research paper, external libraries, or online resources, provide links or references to those resources.
+
+-End-user Documentation (if applicable):
+
+-When documenting, aim for clarity, brevity, and completeness. Remember, the primary goal is to make the code as understandable and usable as possible for anyone who encounters it in the future.
+
+Using the guidelines above create documentation for code provided below without mentioning any of the guidelines above in documentation and only include required sections in documentation, never have empty sections:
+
