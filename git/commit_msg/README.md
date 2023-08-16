@@ -1,4 +1,4 @@
-# Code Documentation
+# commit_message_generator.py
 
 This Python script is a tool to generate commit messages based on the diff of changes in a git repository. The script uses `subprocess` to run shell commands, `argparse` to parse command line arguments, and `os` for file and directory operations.
 
@@ -32,7 +32,8 @@ To use this script, run it from the command line with the `--repo` and `--prompt
 python commit_message_generator.py --repo /path/to/repo --prompt /path/to/prompt
 ```
 
-Replace `/path/to/repo` with the path to your git repository, and `/path/to/prompt` with the path to your prompt file. The script will print the generated commit message. The commit message will also be stored in `commit_message.txt` file in the git repository directory, respectively
+Replace `/path/to/repo` with the path to your git repository, and `/path/to/prompt` with the path to your prompt file. The script will print the generated commit message. The commit message will also be stored in `commit_message.txt` file in the git repository directory, respectively.
+
 Prompt to generate commit message is provided in `prompts/commitmsg.pmt` in this folder
 
 ## Assumptions:
