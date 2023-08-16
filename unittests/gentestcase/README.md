@@ -38,7 +38,7 @@ NOTE: Please checkout and change mode to execute for all shell sctipts in `Autom
 
 # extract_code.sh
 
-This is a bash script that extracts code blocks from a given source file and saves them as separate files. The script assumes that the source file uses Markdown syntax, with code blocks surrounded by triple backticks (```). The language of the code block is determined by the string immediately following the opening backticks (e.g., ```python).
+This is a bash script that extracts code blocks from a given source file and saves them as separate files. The script assumes that the source file uses Markdown syntax, with code blocks surrounded by triple backticks (\```). The language of the code block is determined by the string immediately following the opening backticks (e.g., ```python).
 
 ## Usage
 The script requires one argument: the path to the source file. If the source file does not exist or if the number of arguments is incorrect, the script will display an error message and exit.
