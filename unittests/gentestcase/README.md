@@ -1,6 +1,6 @@
 # generate_testcases.sh
 
-This code is a bash script that utilizes the "bito" command-line tool to generate test cases for a given code file. The script performs the following steps:
+This code is a bash script that utilizes the "bito" command-line tool (https://github.com/gitbito/CLI) to generate test cases for a given code file. The script performs the following steps:
 
 1. Check if "bito" is installed:
    - If "bito" is not found, it displays an error message and exits.
