@@ -38,7 +38,7 @@ Prompt to generate commit message is provided in `prompts/commitmsg.pmt` in this
 
 ## Assumptions:
 - The `git` command is available in the system's PATH.
-- The `bito` command is available in the system's PATH.
+- The `bito` command is available in the system's PATH. Available here: https://github.com/gitbito/CLI
 - The repository at `repo_path` is a valid git repository.
 - The `prompt_path` file exists and is readable.
 
