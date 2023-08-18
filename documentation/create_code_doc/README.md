@@ -9,7 +9,7 @@ This script is used to generate documentation for files in a specified folder an
 ```
 
 ## Prerequisites
-- Bito tool must be installed and accessible in the system.
+- Bito tool must be installed and accessible in the system.  Available here: https://github.com/gitbito/CLI
 
 ## Parameters
 - `folder_name`: The name of the folder for which documentation needs to be generated.
