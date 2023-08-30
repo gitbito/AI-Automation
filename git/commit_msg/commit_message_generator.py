@@ -36,6 +36,7 @@ def parse_arguments():
 def main():
     args = parse_arguments()
     commit_message = generate_commit_message(args.repo, args.prompt)
+    print("Commit message to use:")
     print(commit_message)
 
 if __name__ == "__main__":

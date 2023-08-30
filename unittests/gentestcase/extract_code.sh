@@ -65,6 +65,7 @@ while IFS= read -r line; do
             echo "$block_content" > "$output_file"
             block_content=""
             block_lang=""
+	    echo "Code save in: $output_file"
         else
             # Start of a code block
             in_code_block=true
@@ -75,5 +76,4 @@ while IFS= read -r line; do
     fi
 done < "$1"
 
-echo "Extraction complete."
 
