@@ -21,11 +21,8 @@ doc_folder="doc_$(basename $folder)"
 
 # Create document folder if it does not exist
 if [ ! -d "$doc_folder" ]; then
-    mkdir "$doc_folder"
+    mkdir -p "$doc_folder"
 fi
-
-# Copy directory structure to document folder
-find "$folder" -type d -exec sh -c 'mkdir "$0"' {} "$doc_folder"/{} \;
 
 # Create documentation for each file in folder and subfolders
 find "$folder" -type f -name "*.sh" -o -name "*.py" -o -name "*.php" -o -name "*.js" | while read file; do
@@ -37,7 +34,7 @@ find "$folder" -type f -name "*.sh" -o -name "*.py" -o -name "*.php" -o -name "*
 
     # Create directory if it does not exist
     if [ ! -d "$doc_dir" ]; then
-        mkdir "$doc_dir"
+        mkdir -p "$doc_dir"
     fi
 
     # Create documentation using bito and save it in document folder
@@ -46,7 +43,7 @@ find "$folder" -type f -name "*.sh" -o -name "*.py" -o -name "*.php" -o -name "*
     # The below command does not work and gives following error
     # Only "-p" flag is applicable for this command. Remove any additional flags and then try again.
 #    bito -p docprmt.txt -f "$file" >> "$file2write"
-     cat $file | bito -p docprmt.txt > $file2write
+     cat $file | bito -p ./prompts/structured_doc.txt > $file2write
 done
 
 echo "Documentation created in $doc_folder"
