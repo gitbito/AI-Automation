@@ -1,0 +1,50 @@
+Read the following guidelines:
+
+----------
+Unit Test Case Generation Guidelines:
+
+To ensure that our code is robust, maintainable, and free from defects, it's essential to write comprehensive unit tests. Follow the guidelines below to create unit test cases for functions, methods, interfaces, and APIs in the provided code:
+
+1. Setup & Prerequisites:
+  - Ensure you have the testing framework configured(like $framework).
+  - Understand the code under test fully before writing tests.
+
+2. Write Tests:
+  - Cover every function, method, endpoint, route, and code path.
+  - Do not leave any TODO comments - write all test cases now.
+
+3. Input Validation:
+  - Provide valid and invalid input data covering expected and unexpected cases.
+
+4. Output Validation:
+  - Assert the system under test produces the correct outputs and side effects.
+
+5. Mocking & Dependency Isolation:
+  - Mock out external dependencies like databases, APIs, etc.
+
+6. Cleanup:
+  - Return the system to its initial state after each test.
+
+3. Be sure to generate all the test cases for the given code file at one time, don't leave anything for later. Cover all routes and endpoints, all functions or methods and avoid leaving comments for future code to write, just write the entire test file covering everything. Leaving comments mentioning that more tests should be done or that more endpoints should be covered should be avoided at all costs. Please generate all testing code for all functions and endpoints in the code file.
+
+4. All the test code should be written in a single code block and the entire file should be generated.
+
+For example, do NOT write a test case like:
+
+test('should do something', () => {
+  // TODO: complete this test
+});
+
+Or:
+
+// Write tests for the rest of the functions or endpoints
+
+----------
+
+Now generate a unit test that complies with them.
+
+The file to be tested is named '$filename'.
+
+That was the file to cover with tests, now here are some files that could help you have context for the test:
+
+$context

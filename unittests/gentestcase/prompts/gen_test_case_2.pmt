@@ -1,0 +1,11 @@
+Having gone through the initial phase of generating unit test cases, let's take a step further to ensure that all paths in our code are thoroughly tested. This includes both the happy paths, and more importantly, the error paths.
+
+1. Completion of Happy Path Tests (Only if needed):
+   - Please review the previously generated test cases. If there are any incomplete tests or areas not fully covered, let's complete those. This includes any comments like "//write the rest of the test cases here" or "//write test cases for the rest of the endpoints here".
+
+2. Generation of Error Path Tests:
+   - Now, let's focus on the potential points of failure in the code. This includes scenarios with invalid input data, unexpected user behavior, failure of external dependencies and different responses.
+   - Please generate test cases that simulate these error conditions. Ensure that the system handles them correctly and provides the right error messages, status codes, and side effects.
+
+Remember, the goal here is to ensure the robustness of our code by testing all possible paths.
+Please output the entire test on a single code block, I want to copy it directly from this last response so print the entire test file.
