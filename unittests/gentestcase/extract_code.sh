@@ -65,15 +65,17 @@ while IFS= read -r line; do
             echo "$block_content" > "$output_file"
             block_content=""
             block_lang=""
-	    echo "Code save in: $output_file"
+            echo "Code saved in: $output_file"
         else
             # Start of a code block
             in_code_block=true
             block_lang="${line#\`\`\`}"
         fi
     elif $in_code_block; then
-        block_content="$block_content"$'\n'"$line"
+        if [ -z "$block_content" ]; then
+            block_content="$line"
+        else
+            block_content="$block_content"$'\n'"$line"
+        fi
     fi
 done < "$1"
-
-
