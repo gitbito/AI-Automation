@@ -7,7 +7,7 @@ def generate_release_notes(repo_path, prompt_path, commit1=None, commit2=None, d
 
     if commit1 and commit2:
         # Compare between 2 specified committed versions
-        diff_command = f"git -C {repo_path} diff {commit1}..{commit2} -- '*.c' '*.h'"
+        diff_command = f"git -C {repo_path} diff {commit1}..{commit2}"
     elif commit1:
         # compare between working copy and specified committed version
         diff_command = f"git -C {repo_path} diff {commit1}"
