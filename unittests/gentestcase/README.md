@@ -1,3 +1,6 @@
+![Watch the video](https://github.com/gitbito/Automation/assets/57731668/648b09a7-a64d-41b1-814f-e7369cbb2089)(https://youtu.be/qxpho1Q1Rlw)
+
+
 # generate_testcases.sh
 
 This code is a bash script that utilizes the "bito" command-line tool (https://github.com/gitbito/CLI) to generate test cases for a given code file. The script performs the following steps:
