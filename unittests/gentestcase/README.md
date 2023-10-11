@@ -1,12 +1,10 @@
-[Watch the video](https://youtu.be/qxpho1Q1Rlw)
-
 # Test Case Generation
 
 ## Description
 This script is used to generate test cases. Provide the Bito CLI a file and it will automatically generate function/method tests along the happy path as well as boundary/edge cases. If it's an API/interface, it will build test related to testing the interface, authorization, input validation, throttling, etc. It will generate mocks/stubs as necessary. 
 
 ## Video explanation
-[Youtube video]((https://youtu.be/qxpho1Q1Rlw)
+[Youtube video](https://youtu.be/qxpho1Q1Rlw)
 
 # How to use:
 ## Usage
