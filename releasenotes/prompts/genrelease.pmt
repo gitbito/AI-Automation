@@ -15,12 +15,13 @@ Between the dashed lines (--------) below is the markdown template to use, instr
 ## Assumptions (if applicable otherwise remove this chapter; lists special conditions that are assumed to occur)
     - (bulleted list with items belonging to this header)
 
+## History (static text, do not change this header)
 ### <VERSION> (change this to either: 1. the version of the newest code if found or 2. the commit hash/tag of the newest code. make sure there is always a version indicated, if there is no reference then use 'latest', see also the further instructions below the template on this.)
     - (bulleted list with a clear description of the differences between old and new code versions. Start each line with the type of the difference within curly brackets. Possible options are {FIX, ENHANCEMENT, FEATURE, DOC, SECURITY}, only use these categories. Then clearly describe the difference. When there is a number referenced for the category related to this difference then add this number starting with a hash sign in round brackets at the end of the line, for instance a bug number)
     - (make sure all differences are listed, one bullet per change)
     - (make sure all differences are listed, one bullet per change, use as many as needed)
 
-### <release notes of older versions> (if an older version of release notes is already available in the code base add all of these here at the bottom, ordered for newest to oldest. If none are found then always mention 'No previous version notes available'.) 
+### <release notes of older versions> (if an older version of release notes is already available in the code base add all of the items under the History header in the old file here at the bottom, ordered for newest to oldest. If none are found then always mention 'No previous version notes available'.) 
 
 ## Known issues (only when issues found with label 'TODO', otherwise mention 'No known issues'.)
     - (bulleted list with all issues that have the label 'TODO'.)
