@@ -9,8 +9,7 @@ This script is used to generate test cases. Provide the Bito CLI a file and it w
 # How to use:
 ## Usage
 ```bash
-./generate_testcases.sh source_file context_file_1 context_file_2 ... > tempfile
-./extract_code.sh tempfile
+./generate_testcases.sh source_file context_file_1 context_file_2 ... 
 ```
 
 # generate_testcases.sh
