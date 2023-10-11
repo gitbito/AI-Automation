@@ -12,7 +12,7 @@ Provide Bito CLI a file and it will automatically generate function/method tests
 
 
 ## [Release Notes](https://github.com/gitbito/Automation/tree/main/releasenotes)
-This Python script uses the Bito CLI to generate release notes based on the diff of changes in a git repository between commits. Provided by @pauwels, thanks! 
+This Python script uses the Bito CLI to generate release notes based on the diff of changes in a git repository between commits. Provided by [@WimPauwelsBerthylis](https://github.com/WimPauwelsBerthylis), thanks! 
 
 
 ## [Generate Commit Messages](https://github.com/gitbito/Automation/tree/main/git/commit_msg)
