@@ -1,4 +1,4 @@
-![Watch the video][(https://github.com/gitbito/Automation/assets/57731668/648b09a7-a64d-41b1-814f-e7369cbb2089)](https://youtu.be/qxpho1Q1Rlw)
+[Watch the video][(https://github.com/gitbito/Automation/assets/57731668/648b09a7-a64d-41b1-814f-e7369cbb2089)](https://youtu.be/qxpho1Q1Rlw)
 
 # Test Case Generation
 
