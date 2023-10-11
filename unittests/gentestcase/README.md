@@ -1,5 +1,19 @@
 ![Watch the video][(https://github.com/gitbito/Automation/assets/57731668/648b09a7-a64d-41b1-814f-e7369cbb2089)](https://youtu.be/qxpho1Q1Rlw)
 
+# Test Case Generation
+
+## Description
+This script is used to generate test cases. Provide the Bito CLI a file and it will automatically generate function/method tests along the happy path as well as boundary/edge cases. If it's an API/interface, it will build test related to testing the interface, authorization, input validation, throttling, etc. It will generate mocks/stubs as necessary. 
+
+## Video explanation
+[Youtube video]((https://youtu.be/qxpho1Q1Rlw)
+
+# How to use:
+## Usage
+```bash
+./generate_testcases.sh source_file context_file_1 context_file_2 ... > tempfile
+./extract_code.sh tempfile
+```
 
 # generate_testcases.sh
 
@@ -49,7 +63,7 @@ This code is a bash script that utilizes the "bito" command-line tool (https://g
 10. Remove the temporary output file:
    - The script removes the temporary output file "${filename}.$$" to clean up after execution.
 
-## Usage
+## Usage Detail
 The script requires at least one argument: the path to the source file. If the source file does not exist or if the number of arguments is incorrect, the script will display an error message and exit.
 The rest of the arguments are optional, but very useful. In addition to the file to cover with tests, you can pass more files to be used by the AI to have context about the code you want to cover with tests. You can pass as many files as you want, but for AI performance reasons, it is recommended not to pass more than 5 extra files.
 
@@ -63,7 +77,7 @@ NOTE: Please checkout and change mode to execute for all shell scripts in `Autom
 
 This is a bash script that extracts code blocks from a given source file and saves them as separate files. The script assumes that the source file uses Markdown syntax, with code blocks surrounded by triple backticks (\```). The language of the code block is determined by the string immediately following the opening backticks (e.g., ```python).
 
-## Usage
+## Usage Detail
 
 The script requires one argument: the path to the source file. If the source file does not exist or if the number of arguments is incorrect, the script will display an error message and exit.
 
