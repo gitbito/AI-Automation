@@ -1,4 +1,4 @@
-# Automation
+# AI Automations
 Intelligent AI automations using the Bito CLI and other tools.  Please use them or customize them to your needs!
 
 Four intelligent automations are available currently:
