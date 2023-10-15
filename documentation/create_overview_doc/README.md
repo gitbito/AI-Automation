@@ -135,9 +135,3 @@ Should the new language necessitate third-party tools or dependencies, integrate
 - **Additional Dependencies**: Some languages might have distinct tools/libraries essential for documentation generation or code structure comprehension.
 
 ---
-
-### Conclusion
-
-Broadening support for other languages in an open-source project necessitates an in-depth grasp of the prevailing script's design and functionalities. This guide is curated to assist contributors in effortlessly incorporating new languages. Looking ahead, the script might benefit from a refactor to make language integration more modular and efficient.
-
----
