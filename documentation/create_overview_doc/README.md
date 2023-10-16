@@ -4,7 +4,7 @@
 
 
 ## Description
-This is a bash script designed to automate the generation of documentation for a codebase. It's tailored to extract docstrings, file summaries, and code flow diagrams from Python and JavaScript files. The generated documentation utilizes tools such as Bito, Code2Flow, Graphviz, and jq.
+This is a bash script designed to automate the generation of documentation for a codebase. You get an overview of the module in natural language, an explanation of all the functions and variables and their role in the module.  You also get a visualization Flow Map of the code flow. The generated documentation utilizes tools such as Bito, Code2Flow, Graphviz, and jq.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ Once initiated, the script:
 
 1. Verifies the existence of the provided folder.
 2. Copies the directory structure from the source to a `doc_` prefixed folder.
-3. Extracts docstrings from Python and JavaScript files.
+3. Extracts any existing docstrings from Python and JavaScript files, to help provide context to Bito.  
 4. Aggregates file summaries using Bito CLI.
 5. Creates code flow maps for each module via Code2Flow.
 6. Constructs a markdown overview for each module.
@@ -47,7 +47,7 @@ The output is structured as:
 
 ## Limitations
 
-- Supports only Python and JavaScript files.
+- Currently supports only Python and JavaScript files. See below to add support for additional languages.
 - Ignores hidden directories.
 - Prioritizes Python over JavaScript in Code2Flow for modules containing both.
 - Modules without Python or JavaScript won't have flow maps.
