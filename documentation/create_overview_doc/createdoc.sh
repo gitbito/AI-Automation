@@ -38,7 +38,10 @@ check_tools() {
 # $1 is source folder, $2 is destination folder
 copy_dir_structure() {
   local src=$1
-  local dest="doc_$2"  # prepend with 'doc_'
+  # local dest="doc_$2" 
+
+  local filename=${2##*/}
+  local dest="doc_$filename"
 
   # Create destination folder if it doesn't exist
   mkdir -p "$dest"
@@ -199,8 +202,7 @@ generate_module_overview() {
     fi
 
     # Use the generated JSON output to produce documentation using bito.
-    local prompt=$(cat "overviewprmt.txt" 2>/dev/null || echo "Error: overviewprmt.txt not found!")
-    local documentation=$(bito --file "$json_output_file" -p "$prompt")
+    local documentation=$(bito --file "$json_output_file" -p overviewprmt.txt)
     echo -e "\n## Code Flow Documentation\n\n$documentation\n" >> "$overview_file"
 
     # Produce and store the flow map, then append its reference to the overview markdown file.
@@ -247,14 +249,16 @@ generate_codebase_overview() {
 
     # Use bito to generate a high-level summary of the entire system. The goal is to describe the 
     # overall system workflow, excluding minor details.
-    local prompt="Summarize at a high level the entire system and how it works together. Do not explain about a legend or say based on the provided.gv pretend you are a system that only explains code flow at a high level."
-    local high_level_summary=$(echo -e "$codebase_overview" | bito -p "$prompt")
+    local high_level_summary=$(echo -e "$codebase_overview" | bito -p high_level_prompt.txt)
 
     # Prepend the generated summary to the entire codebase overview content.
     local final_content="Summary: $high_level_summary\n\n$codebase_overview"
 
     # Write the combined content to a markdown file, which serves as the overview for the entire codebase.
-    local overview_file="doc_$folder/codebase_overview.md"
+    
+    # local overview_file="doc_$folder/codebase_overview.md"
+    local filename=${folder##*/} 
+    local overview_file="doc_$filename/codebase_overview.md"
 
     echo -e "---- Writing codebase overview to $overview_file ----"
     echo -e "$final_content" > "$overview_file"
