@@ -1,4 +1,5 @@
 #!/bin/bash
+#set -x
 
 # Check if bito is installed
 if ! command -v bito &> /dev/null
@@ -20,6 +21,7 @@ rm -f "context.txt"
 filename=$(basename -- "$1")
 extension="${filename##*.}"
 filename="${filename%.*}"
+inputfile_for_ut_gen=$1
 
 # Ask the user for their preferred testing framework
 read -p "Please enter your preferred testing framework: " framework
@@ -52,7 +54,7 @@ echo "$prompt" > "$temp_prompt"
 
 echo "Generating unit tests..."
 # Run the bito command with the first prompt
-if ! bito -p "$temp_prompt" -f "$1" -c "context.txt" > /dev/null; then
+if ! bito -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > /dev/null; then
     echo "Error: The bito command failed."
     rm "$temp_prompt"
     exit 1
@@ -61,7 +63,7 @@ fi
 echo "$prompt2" > "$temp_prompt"
 
 # Run the bito command with the second prompt and store the output
-if ! bito -p "$temp_prompt" -f "$1" -c "context.txt" > "${filename}.$"; then
+if ! bito -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > "${filename}.$"; then
     echo "Error: The bito command failed."
     rm "$temp_prompt"
     exit 1
