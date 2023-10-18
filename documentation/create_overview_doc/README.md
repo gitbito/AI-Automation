@@ -60,8 +60,6 @@ The output is structured as:
 - Ensuring flow map generation irrespective of the presence of Python or JavaScript files.
 - Always generating code flow documentation, even in the absence of identifiable module code flow.
 
-Based on the provided ticket, here's a suggested improvement for the README to make it more structured and clear:
-
 ---
 
 # Extending `createdoc.sh` to Support Additional Languages
