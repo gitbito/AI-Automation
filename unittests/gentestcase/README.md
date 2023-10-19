@@ -64,7 +64,7 @@ This code is a bash script that utilizes the "bito" command-line tool (https://g
 The script requires at least one argument: the path to the source file. If the source file does not exist or if the number of arguments is incorrect, the script will display an error message and exit.
 The rest of the arguments are optional, but very useful. In addition to the file to cover with tests, you can pass more files to be used by the AI to have context about the code you want to cover with tests. You can pass as many files as you want, but for AI performance reasons, it is recommended not to pass more than 5 extra files.
 
-NOTE: Please checkout and change mode to execute for all shell scripts in `Automation/unittests/gentestcase` folder and run the script from the folder itself.
+NOTE: Please checkout and change mode to execute for all shell scripts in `AI-Automation/unittests/gentestcase` folder and run the script from the folder itself.
 
 ```bash
 ./generate_testcases.sh source_file context_file_1 context_file_2 ...
