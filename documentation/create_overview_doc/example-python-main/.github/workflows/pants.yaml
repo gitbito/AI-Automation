@@ -1,0 +1,69 @@
+# Copyright 2020 Pants project contributors.
+# Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+# See https://pants.readme.io/docs/using-pants-in-ci for tips on how to set up your CI with Pants.
+
+name: Pants
+
+on: [push, pull_request]
+
+jobs:
+  org-check:
+    name: Check GitHub Organization
+    if: ${{ github.repository_owner == 'pantsbuild' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Noop
+        run: "true"
+  build:
+    name: Perform CI Checks
+    needs: org-check
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: pantsbuild/actions/init-pants@v5-scie-pants
+      # This action bootstraps pants and manages 2-3 GHA caches.
+      # See: github.com/pantsbuild/actions/tree/main/init-pants/
+      with:
+        # v0 makes it easy to bust the cache if needed
+        # just increase the integer to start with a fresh cache
+        gha-cache-key: v0
+        # The Python backend uses named_caches for Pip/PEX state,
+        # so it is appropriate to invalidate on lockfile changes.
+        named-caches-hash: ${{ hashFiles('python-default.lock') }}
+        # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
+        # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
+        # changes to any file that can affect the build, so may not be practical in larger repos.
+        # A remote cache service integrates with Pants's fine-grained invalidation and avoids these problems.
+        cache-lmdb-store: 'true'  # defaults to 'false'
+        # Note that named_caches and lmdb_store falls back to partial restore keys which
+        # may give a useful partial result that will save time over completely clean state,
+        # but will cause the cache entry to grow without bound over time.
+        # See https://pants.readme.io/docs/using-pants-in-ci for tips on how to periodically clean it up.
+        # Alternatively you change gha-cache-key to ignore old caches.
+    - name: Check BUILD files
+      run: |
+        pants tailor --check update-build-files --check ::
+    - name: Lint and typecheck
+      run: |
+        pants lint check ::
+    - name: Test
+      run: |
+        pants test ::
+    - name: Package / Run
+      run: |
+        # We also smoke test that our release process will work by running `package`.
+        pants package ::
+        pants run helloworld/:pex_binary
+    - name: Upload pants log
+      uses: actions/upload-artifact@v3
+      with:
+        name: pants-log
+        path: .pants.d/pants.log
+      if: always()  # We want the log even on failures.

@@ -1,0 +1,50 @@
+# Copyright 2020 Pants project contributors.
+# Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+[GLOBAL]
+pants_version = "2.17.0"
+backend_packages.add = [
+  "pants.backend.build_files.fmt.black",  
+  "pants.backend.python",
+  "pants.backend.python.lint.docformatter",
+  "pants.backend.python.lint.black",
+  "pants.backend.python.lint.flake8",
+  "pants.backend.python.lint.isort",
+  "pants.backend.python.typecheck.mypy",
+]
+
+[anonymous-telemetry]
+enabled = true
+repo_id = "3B1D361B-E9F1-49A8-B761-03DCC41FD58E"
+
+[source]
+# The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
+root_patterns = ["/"]
+
+[python]
+# The default interpreter constraints for code in this repo. Individual targets can override
+#  this with the `interpreter_constraints` field. See
+#  https://www.pantsbuild.org/docs/python-interpreter-compatibility.
+
+# Modify this if you don't have Python 3.9 on your machine.
+# This can be a range, such as [">=3.8,<3.11"], but it's usually recommended to restrict
+# to a single minor version.
+interpreter_constraints = ["==3.9.*"]
+
+# Enable the "resolves" mechanism, which turns on lockfiles for user code. See
+# https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the
+# `generate-lockfiles` goal for Pants to generate the lockfile for you.
+enable_resolves = true
+
+resolves = { python-default = "python-default.lock"}
+
+[python-bootstrap]
+# We search for interpreters both on the $PATH and in the `$(pyenv root)/versions` folder.
+#  If you're using macOS, you may want to leave off the <PATH> entry to avoid using the
+#  problematic system Pythons. See
+#  https://www.pantsbuild.org/docs/python-interpreter-compatibility#changing-the-interpreter-search-path.
+search_path = ["<PATH>", "<PYENV>"]
+
+[python-infer]
+# 2.17 is transitioning to a new, faster parser for dependency inference:
+use_rust_parser = true

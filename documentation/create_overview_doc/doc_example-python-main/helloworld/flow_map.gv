@@ -1,0 +1,27 @@
+digraph G {
+concentrate=true;
+splines="ortho";
+rankdir="LR";
+subgraph legend{
+    rank = min;
+    label = "legend";
+    Legend [shape=none, margin=0, label = <
+        <table cellspacing="0" cellpadding="0" border="1"><tr><td>Code2flow Legend</td></tr><tr><td>
+        <table cellspacing="0">
+        <tr><td>Regular function</td><td width="50px" bgcolor='#cccccc'></td></tr>
+        <tr><td>Trunk function (nothing calls this)</td><td bgcolor='#966F33'></td></tr>
+        <tr><td>Leaf function (this calls nothing else)</td><td bgcolor='#6db33f'></td></tr>
+        <tr><td>Function call</td><td><font color='black'>&#8594;</font></td></tr>
+        </table></td></tr></table>
+        >];
+}node_1a7c5122 [label="0: (global)()" name="main::(global)" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_fb263de4 [label="9: say_hello()" name="main::say_hello" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_1a7c5122 -> node_fb263de4 [color="#56B4E9" penwidth="2"];
+subgraph cluster_67ba786e {
+    node_fb263de4 node_1a7c5122;
+    label="File: main";
+    name="main";
+    style="filled";
+    graph[style=dotted];
+};
+}
