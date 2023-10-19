@@ -4,7 +4,7 @@
 This script is used to generate documentation for files in a specified folder and its subfolders. It creates a document folder and copies the directory structure from the original folder to the document folder. Then, it creates documentation for each file in the specified folder and saves it in the corresponding location within the document folder.
 
 ## Video explanation
-https://github.com/gitbito/Automation/assets/57731668/0d85a531-35b4-44ef-9855-f44ac0e0cd63
+https://github.com/gitbito/AI-Automation/assets/57731668/0d85a531-35b4-44ef-9855-f44ac0e0cd63
 
 
 ## Usage
