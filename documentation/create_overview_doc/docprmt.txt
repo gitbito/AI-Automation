@@ -1,1 +1,1 @@
-Generate documentation in brief in MD format for the code below, describe at a high level what the module/code folder does and how it works.
+Generate documentation in MD format for the code below, emphasizes understanding the main function or purpose of the file, extracting only the most relevant details :

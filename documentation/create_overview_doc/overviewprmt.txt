@@ -1,3 +1,5 @@
-Explain the code flow using the code2flow JSON provided below following these rules
+Explain the code flow provided below following these rules
+- Provide the module name
 - Provide the code flow at a high level on how each function and module interact with each other within the system
-- Provide brief description for the module based on the code flow provided sounding confident and knowledgeable:
+- Provide brief description for the module based on the code flow provided sounding confident and knowledgeable
+- Provide inputs and outputs of the module, if applicable.

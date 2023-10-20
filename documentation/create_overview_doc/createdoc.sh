@@ -33,23 +33,6 @@ check_tools() {
   fi
 }
 
-# Function to recursively copy a directory structure excluding hidden directories
-# $1 is source folder, $2 is destination folder
-copy_dir_structure() {
-  local src=$1
-  local dest="doc_$2" 
-
-  echo -e "\n---- Copying directory structure from $src to $dest ----"
-
-  # Get the relative paths of all directories in the source, excluding hidden directories
-  find "$src" -mindepth 1 -type d -not -path '*/\.*' | sed "s|^$src/||" | while read -r dir; do
-    # Only create the corresponding directory in the destination if it exists in the source
-    if [ -d "$src/$dir" ]; then
-      mkdir -p "$dest/$dir"
-    fi
-  done
-}
-
 # Function to check if a directory is hidden
 is_hidden_dir() {
   echo -e "\n---- Checking if $1 is a hidden directory ----"
@@ -60,6 +43,50 @@ is_hidden_dir() {
     return 1
   fi
 }
+
+# Function to check if a directory or its parent is named node_modules
+is_node_modules() {
+  local dir_path=$1
+  if [[ $dir_path == *"node_modules"* ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Function to recursively copy a directory structure excluding hidden directories and node_modules
+# $1 is source folder, $2 is destination folder
+copy_dir_structure() {
+  local src=$1
+  local dest="doc_$2" 
+
+  echo -e "\n---- Copying directory structure from $src to $dest ----"
+
+  # Get the relative paths of all directories in the source, excluding hidden directories and node_modules
+  find "$src" -mindepth 1 -type d -not -path '*/\.*' -not -path '*/node_modules*' | sed "s|^$src/||" | while read -r dir; do
+    # Only create the corresponding directory in the destination if it exists in the source
+    if [ -d "$src/$dir" ]; then
+      mkdir -p "$dest/$dir"
+    fi
+  done
+}
+
+# # Function to recursively copy a directory structure excluding hidden directories
+# # $1 is source folder, $2 is destination folder
+# copy_dir_structure() {
+#   local src=$1
+#   local dest="doc_$2" 
+
+#   echo -e "\n---- Copying directory structure from $src to $dest ----"
+
+#   # Get the relative paths of all directories in the source, excluding hidden directories
+#   find "$src" -mindepth 1 -type d -not -path '*/\.*' | sed "s|^$src/||" | while read -r dir; do
+#     # Only create the corresponding directory in the destination if it exists in the source
+#     if [ -d "$src/$dir" ]; then
+#       mkdir -p "$dest/$dir"
+#     fi
+#   done
+# }
 
 # This function generates the JSON output using the code2flow tool.
 # It is used for generating the code flow from the source code.
@@ -239,11 +266,9 @@ generate_codebase_overview() {
   # Use bito to generate a high-level summary of the entire system. The goal is to describe the 
   # overall system workflow, excluding minor details.
   local high_level_summary=$(echo -e "$codebase_overview" | bito -p high_level_prompt.txt)
+  # Prepend the generated summary to the entire codebase overview content.
+  local final_content="Summary: $high_level_summary\n\n$codebase_overview"
   
-  # Prepend the generated codebase overview content to the generated summary.
-  local final_content="$codebase_overview\n\nSummary: $high_level_summary"
-
-  # Prepend the generated the codebase overview content to the 
   # Write the combined content to a markdown file, which serves as the overview for the entire codebase.
   local filename=${folder##*/} 
   local overview_file="doc_$filename/codebase_overview.md"
@@ -270,8 +295,16 @@ if [ ! -d "$folder" ]; then
   exit 1
 fi
 
-# Populate the modules variable with subdirectories and files directly under the main directory
-modules=$(find "$folder" -mindepth 1 -maxdepth 1 -type d -not -path '*/\.*')
+# # Populate the modules variable with subdirectories and files directly under the main directory
+# modules=$(find "$folder" -mindepth 1 -maxdepth 1 -type d -not -path '*/\.*')
+# for file in "$folder/"*.{py,js}; do
+#   if [[ -f $file ]]; then
+#     modules="$modules $file"
+#   fi
+# done
+
+# Populate the modules variable with subdirectories and files directly under the main directory, excluding node_modules
+modules=$(find "$folder" -mindepth 1 -maxdepth 1 -type d -not -path '*/\.*' -not -path '*/node_modules*')
 for file in "$folder/"*.{py,js}; do
   if [[ -f $file ]]; then
     modules="$modules $file"
@@ -281,8 +314,18 @@ done
 # Create the doc directory structure before processing the modules
 copy_dir_structure "$folder" "$folder"
 
+# # Process subdirectories and files under the main directory
+# for module in $modules; do
+#   generate_module_overview "$module" "doc_$module"
+#   echo -e "\n---- Generating file summary for $file ----"
+# done
+
 # Process subdirectories and files under the main directory
 for module in $modules; do
+  # For .js files, if it's within node_modules, skip the module
+  if [[ "$module" == *".js" ]] && is_node_modules "$module"; then
+    continue
+  fi
   generate_module_overview "$module" "doc_$module"
   echo -e "\n---- Generating file summary for $file ----"
 done

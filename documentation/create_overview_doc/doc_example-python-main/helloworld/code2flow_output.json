@@ -1,1 +1,0 @@
-{"graph": {"directed": true, "nodes": {"node_97df105c": {"uid": "node_97df105c", "label": "0: (global)()", "name": "main::(global)"}, "node_f50b804a": {"uid": "node_f50b804a", "label": "9: say_hello()", "name": "main::say_hello"}}, "edges": [{"source": "node_97df105c", "target": "node_f50b804a", "directed": true}]}}
