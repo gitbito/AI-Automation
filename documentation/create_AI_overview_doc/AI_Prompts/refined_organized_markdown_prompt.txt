@@ -1,0 +1,5 @@
+Given the software design document:
+
+- Offer a well-structured representation in markdown format.
+- If there are visual sequences or complex interactions, describe them textually.
+- Identify main components and interactions clearly.
