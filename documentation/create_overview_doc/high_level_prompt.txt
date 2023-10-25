@@ -1,1 +1,0 @@
-Never introduce yourself as an AI language model, explain this code such that a junior developer can grasp the concept from your explanation, dont just summarize as this is a quick-start guide :

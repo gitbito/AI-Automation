@@ -1,0 +1,5 @@
+From the high-level summaries of each module, compile an overview that:
+
+- Outlines each module's primary responsibilities.
+- Marks interaction points between them.
+- Places each module in its architectural layer and defines its role there.
