@@ -168,7 +168,6 @@ function main() {
     fi
 
     folder_to_document="$1"
-    # docs_folder="$folder_to_document/doc_$folder_to_document"
     docs_folder="doc_"$(basename "$folder_to_document")
     
     if [ ! -d "$folder_to_document" ]; then
