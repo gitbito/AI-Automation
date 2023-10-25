@@ -22,7 +22,7 @@ function check_tools_and_files() {
         fi
     done
 
-    local required_files=("high_level_docstrings_prompt.txt" "system_summary_prompt.txt" "system_understanding_sequence.txt" "enhance_system_context_prompt.txt" "refined_organized_markdown_prompt.txt" )
+    local required_files=("high_level_docstrings_prompt.txt" "system_summary_prompt.txt" "refined_organized_markdown_prompt.txt" )
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
             echo "Error: Missing required file: $prompt_folder/$file"
@@ -43,7 +43,7 @@ function check_tools_and_files() {
 is_skippable() {
   local path=$1
   
-  local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js")
+  local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js" "init")
 
   for skip_item in "${skip_dirs_files[@]}"; do
     if [[ "$path" == *"$skip_item"* ]]; then
@@ -60,10 +60,15 @@ is_skippable() {
 
 function aggregate_module_high_level_docstrings() {
     local module_path="$1"
+    
+    if is_skippable "$module_path"; then
+        echo "Skipped $module_path as it's in the skippable list."
+        return
+    fi
+    
     local module_name=$(basename "$module_path")
     local module_contents
 
-    # Read module contents into a variable (more efficient than using 'cat')
     module_contents=$(<"$module_path")
 
     local high_level_docstrings=$(echo -e "Module: $module_name\n---\n$module_contents" | bito -p "$prompt_folder/high_level_docstrings_prompt.txt")
@@ -126,6 +131,34 @@ function generate_refined_design_doc() {
     echo "$refined_doc" > "$output_file"
 }
 
+generate_flow_map() {
+    local module=$1
+    local flow_map_file=$2
+    local lang_option=$3
+
+    echo -e "\n---- Generating code flow map for files in $module using language: $lang_option ----"
+
+    local file_extension
+    case $lang_option in
+        "py") file_extension="*.py" ;;
+        "js") file_extension="*.js" ;;
+        # Add other cases as needed
+        *) file_extension="*.*" ;;  # Default
+    esac
+
+    local files_to_process=($(find "$module" -type f -name "$file_extension"))
+
+    # Debugging step to print the files you're about to process
+    echo "Files to process with code2flow: ${files_to_process[@]}"
+
+    if [[ ${#files_to_process[@]} -eq 0 ]]; then
+        echo "Warning: No files found for the language: $lang_option in $module"
+        return 1
+    fi
+
+    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet
+}
+
 function main() {
     check_tools_and_files
 
@@ -135,8 +168,9 @@ function main() {
     fi
 
     folder_to_document="$1"
-    docs_folder="$folder_to_document/doc_$folder_to_document"
-
+    # docs_folder="$folder_to_document/doc_$folder_to_document"
+    docs_folder="doc_"$(basename "$folder_to_document")
+    
     if [ ! -d "$folder_to_document" ]; then
         echo "Folder $folder_to_document does not exist"
         exit 1
@@ -152,22 +186,23 @@ function main() {
     # For Python, C, C++, Java, JavaScript, Go, Rust    
     module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' \))
 
-    # Using an array to store the filtered files
-    declare -a filtered_module_files=()
-    
+    total_modules=0
     for module_file in $module_files; do
         if ! is_skippable "$module_file"; then
-            filtered_module_files+=("$module_file")
+            ((total_modules++))
         fi
     done
 
-    total_modules=${#filtered_module_files[@]}
     aggregated_module_count=0
     running_word_count=0
     running_char_count=0
     divider="=========================================================="
 
-    for module_file in "${filtered_module_files[@]}"; do
+    for module_file in $module_files; do
+        if is_skippable "$module_file"; then
+            continue  # Skip the current iteration and move to the next file
+        fi
+
         module_summary=$(aggregate_module_high_level_docstrings "$module_file")
 
         if [ $? -ne 0 ]; then
@@ -194,8 +229,7 @@ function main() {
         echo -e "$module_summary\n" >> "$aggregated_module_docstrings_file"
     done
 
-    echo "Final word count of aggregated modules: $running_word_count"
-    echo "Final char count of aggregated modules: $running_char_count"
+    # [The rest of your function remains unchanged.]
 
     system_overview_file="$docs_folder/system_overview.txt"
     system_overview=$(generate_system_overview "$aggregated_module_docstrings_file")
@@ -203,8 +237,26 @@ function main() {
 
     create_combined_context "$aggregated_module_docstrings_file" "$system_overview_file"
 
-    # Call function to generate refined doc
     generate_refined_design_doc "$docs_folder/combined_context.txt"
+
+    local languages="py js"
+    for lang in $languages; do
+        local file_extension
+        case $lang in
+            "py") file_extension="*.py" ;;
+            "js") file_extension="*.js" ;;
+            *) file_extension="*.*" ;;  # Default
+        esac
+
+        capitalized_lang=$(echo "$lang" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+        if [[ $(find "$folder_to_document" -type f -name "$file_extension") ]]; then
+            flow_map_file="$docs_folder/flow_map_${lang}.png"
+            generate_flow_map "$folder_to_document" "$flow_map_file" "$lang"
+            
+            echo -e "\n\n## Flow Map ($capitalized_lang)\n" >> "$docs_folder/High_Level_Design.md"
+            echo -e "![Flow Map ($capitalized_lang)](flow_map_${lang}.png)\n" >> "$docs_folder/High_Level_Design.md"
+        fi
+    done
 }
 
 main "$@"

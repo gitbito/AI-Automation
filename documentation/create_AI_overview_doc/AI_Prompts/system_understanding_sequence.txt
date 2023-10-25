@@ -1,4 +1,0 @@
-Starting with the main module, produce a structured analysis:
-
-- Define the main module's primary role.
-- Detail interactions with sub-modules, functions, and variables.

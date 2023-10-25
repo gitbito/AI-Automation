@@ -1,5 +1,0 @@
-Based on the codebase design document:
-
-- Extract unique system-specific functions.
-- Describe any unique processes.
-- If any sequences can be visually illustrated, represent them textually.
