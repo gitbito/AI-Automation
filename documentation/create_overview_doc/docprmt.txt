@@ -1,1 +1,0 @@
-Generate documentation in brief in MD format for the code below, describe at a high level what the module/code folder does and how it works.
