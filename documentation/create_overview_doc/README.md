@@ -3,7 +3,7 @@
 
 # High-Level Documentation Generator
 
-This script facilitates the automatic generation of high-level documentation for a given project directory. It aggregates module docstrings, creates a system overview, and generates flow maps for selected programming languages.
+This script facilitates the automatic generation of high-level documentation for a given project directory. It aggregates module details, creates a system overview, and generates flow maps for the provided project.
 
 ## Features
 
