@@ -33,11 +33,11 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 1. **Clone the Repository**: Clone this repository to your local machine.
 2. **Set Execution Permissions**: Provide the necessary execution permissions to the script:
    ```bash
-   chmod +x <script_name>.sh
+   chmod +x createdoc.sh
    ```
 3. **Run the Script**: Execute the script by providing the folder you wish to document as an argument:
    ```bash
-   ./<script_name>.sh <folder_to_document>
+   ./createdoc.sh <folder_to_document>
    ```
 
 ## Output
@@ -54,5 +54,3 @@ The script will generate documentation in a folder named `doc_<folder_to_documen
 Certain directories and files are skipped during the documentation process. This includes commonly ignored directories like `node_modules`, `logs`, etc., and files with extensions like `.json`, `.js`, etc. You can update the skip list within the script as per your requirements.
 
 ---
-
-Adjust the `<script_name>.sh` placeholder with the actual name of your script before using this README.
