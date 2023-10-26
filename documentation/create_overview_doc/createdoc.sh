@@ -1,6 +1,6 @@
 #!/bin/bash
 
-log_file="bito_usage_log.txt"
+log_file="bito_usage_log.txt" # Specify the log file here
 prompt_folder="AI_Prompts"  # Specify the prompt folder here
 
 function log_word_char_count() {
@@ -140,8 +140,10 @@ generate_flow_map() {
 
     local file_extension
     case $lang_option in
-        "py") file_extension="*.py" ;;
-        "js") file_extension="*.js" ;;
+        "py") file_extension="*.py" ;;      # Python
+        "js") file_extension="*.js" ;;      # JavaScript
+        "ruby") file_extension="*.rb" ;;    # Ruby
+        "php") file_extension="*.php" ;;    # PHP
         # Add other cases as needed
         *) file_extension="*.*" ;;  # Default
     esac
@@ -182,8 +184,8 @@ function main() {
     aggregated_module_docstrings_file="$docs_folder/aggregated_module_docstrings.txt"
     touch "$aggregated_module_docstrings_file"
     
-    # For Python, C, C++, Java, JavaScript, Go, Rust    
-    module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' \))
+    # For Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP
+    module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' \))
 
     total_modules=0
     for module_file in $module_files; do
@@ -228,8 +230,6 @@ function main() {
         echo -e "$module_summary\n" >> "$aggregated_module_docstrings_file"
     done
 
-    # [The rest of your function remains unchanged.]
-
     system_overview_file="$docs_folder/system_overview.txt"
     system_overview=$(generate_system_overview "$aggregated_module_docstrings_file")
     echo "$system_overview" > "$system_overview_file"
@@ -238,12 +238,16 @@ function main() {
 
     generate_refined_design_doc "$docs_folder/combined_context.txt"
 
-    local languages="py js"
+    local languages="py js ruby php"
+
     for lang in $languages; do
         local file_extension
         case $lang in
-            "py") file_extension="*.py" ;;
-            "js") file_extension="*.js" ;;
+            "py") file_extension="*.py" ;;     # Python
+            "js") file_extension="*.js" ;;     # JavaScript
+            "ruby") file_extension="*.rb" ;;   # Ruby
+            "php") file_extension="*.php" ;;   # PHP
+            # Add other cases as needed
             *) file_extension="*.*" ;;  # Default
         esac
 
