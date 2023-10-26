@@ -9,7 +9,7 @@ This script facilitates the automatic generation of high-level documentation for
 
 1. **Aggregate High-Level Understanding**: For every module in the directory, the script extracts a high-level summary using the `bito` command with specific prompts.
 2. **System Overview**: Generate a system-level summary by aggregating individual module summaries.
-3. **Flow Maps**: Create flow maps using `code2flow`.
+3. **Flow Maps**: Create flow maps using `code2flow` for multiple languages, including Python, JavaScript, Ruby, and PHP.
 4. **Refined Design Document**: Create a consolidated design documentation in markdown format, including flow maps.
 5. **Log Word and Character Count**: Log word and character counts for each module to a specified log file.
 6. **Tool and File Checker**: Verify the presence of required tools and files before executing.
