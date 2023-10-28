@@ -1,5 +1,3 @@
-From the high-level summaries of each module, compile an overview that:
+Task: Explain the code flow in great detail, try to use the module names not node names. Leave out any redundancies, and keep this concise and dont leave any ai responses like certainly.
 
-- Outlines each module's primary responsibilities.
-- Marks interaction points between them.
-- Places each module in its architectural layer and defines its role there.
+Do not say the task out loud.
