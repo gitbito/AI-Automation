@@ -3,16 +3,29 @@
 
 # High-Level Documentation Generator
 
-This script facilitates the automatic generation of high-level documentation for a given project directory. It aggregates module details, creates a system overview, and generates flow maps for the provided project.
+This tool is designed to simplify the process of creating high-level documentation for your project directory. It generates detailed information for each module, creates flow maps to visualize code execution paths, logs usage metrics, and aggregates all generated documentation.
 
 ## Features
 
-1. **Aggregate High-Level Understanding**: For every module in the directory, the script extracts a high-level summary using the `bito` command with specific prompts.
-2. **System Overview**: Generate a system-level summary by aggregating individual module summaries.
-3. **Flow Maps**: Create flow maps using `code2flow` for multiple languages, including Python, JavaScript, Ruby, and PHP.
-4. **Refined Design Document**: Create a consolidated design documentation in markdown format, including flow maps.
-5. **Log Word and Character Count**: Log word and character counts for each module to a specified log file.
-6. **Tool and File Checker**: Verify the presence of required tools and files before executing.
+- Customizable Module Analysis: Uses a user-editable prompt `high_level_doc_prompt.txt` from the `AI_Prompts` directory to analyze each module. Modify the prompt to extract details like:
+   - Module Name
+   - Primary Objectives
+   - Key Functions and Roles
+   - Important Variables
+   - Interactions with Other System Parts
+   - Main vs. Supportive Operations
+   - Operational Sequence
+   - Performance Factors
+   - Reusability and Adaptability
+- Skippable Files and Directories: The tool ignores specific files and directories by default, such as logs, node_modules, .gradle, and more. Adjust the skip list in the script to suit your project needs.
+
+- Code Flow Maps: Generates flow maps in PNG format for languages like Python, JavaScript, Ruby, and PHP using code2flow.
+
+- Comprehensive Documentation: Aggregates generated documentation from each module into an overarching markdown file.
+
+- Documentation Metrics Logging: Records word and character counts for each module in the bito_usage_log.txt file.
+
+- Required Tool and File Verification: The script checks for necessary tools and files before starting.
 
 ## Prerequisites
 
@@ -24,9 +37,8 @@ Ensure the following tools are installed:
 
 Also, make sure these prompt files are present in a specified prompt folder (`AI_Prompts` by default):
 
-- `high_level_docstrings_prompt.txt`
+- `high_level_doc_prompt.txt`
 - `system_summary_prompt.txt`
-- `refined_organized_markdown_prompt.txt`
 
 ## How to Use
 
@@ -42,12 +54,12 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 
 ## Output
 
-The script will generate documentation in a folder named `doc_<folder_to_document>`. Within this folder, you'll find:
+Upon successful execution, the tool generates a directory named doc_<folder_name>. Inside, you will find:
 
-- `aggregated_module_docstrings.txt`: Aggregated module-level summaries.
-- `system_overview.txt`: System-level summary.
-- `High_Level_Design.md`: Consolidated high-level design documentation in markdown format, including the flow maps.
-- Flow maps as `.png` files for Python (`flow_map_py.png`) and JavaScript (`flow_map_js.png`), if applicable.
+- Individual module markdown files, named as `<module_name>_High_Level_Doc.md`.
+- An aggregated documentation named `Aggregated_High_Level_Doc.md`, which combines individual module documentations and flow maps.
+- Flow maps for supported languages in PNG format: `flow_map_<lang>.png`.
+- A summarized system documentation which explains the overall system's flow and functionality.
 
 ## Skip List
 
