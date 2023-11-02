@@ -45,11 +45,11 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 1. **Clone the Repository**: Clone this repository to your local machine.
 2. **Set Execution Permissions**: Provide the necessary execution permissions to the script:
    ```bash
-   chmod +x createdoc.sh
+   chmod +x <createdoc>.sh
    ```
 3. **Run the Script**: Execute the script by providing the folder you wish to document as an argument:
    ```bash
-   ./createdoc.sh <folder_to_document>
+   ./<createdoc>.sh <folder_to_document>
    ```
 
 ## Output
