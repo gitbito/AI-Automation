@@ -77,6 +77,6 @@ Upon successful execution, the tool generates a directory named `doc_<folder_nam
 
 ## Skip List
 
-Certain directories and files are skipped during the documentation process. This includes commonly ignored directories like `node_modules`, `logs`, etc., and files with extensions like `.json`, `.js`, etc. You can update the skip list within the script as per your requirements.
+Certain directories and files are skipped during the documentation process. This includes commonly ignored directories like `node_modules`, `logs`, etc., and files with extensions like `.json`, etc. You can update the skip list within the script as per your requirements.
 
 ---
