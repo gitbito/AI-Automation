@@ -6,6 +6,22 @@ log_file="bito_usage_log.txt"
 # Directory containing prompt files for NLP tasks
 prompt_folder="AI_Prompts"  
 
+# Detect languages available in the directory 
+# This function detects the programming languages available in the directory to be documented and returns a space-separated string of the languages found.
+# These are the languages for which flow maps will be generated using code2flow
+detect_languages_compatible_with_code2flow() {
+    local folder_to_scan=$1
+    local detected_languages=()
+
+    # Add to detected_languages if files with the extension are found
+    [[ $(find "$folder_to_scan" -type f -name '*.py' | wc -l) -ne 0 ]] && detected_languages+=("py")
+    [[ $(find "$folder_to_scan" -type f -name '*.js' | wc -l) -ne 0 ]] && detected_languages+=("js")
+    [[ $(find "$folder_to_scan" -type f -name '*.rb' | wc -l) -ne 0 ]] && detected_languages+=("ruby")
+    [[ $(find "$folder_to_scan" -type f -name '*.php' | wc -l) -ne 0 ]] && detected_languages+=("php")
+
+    echo "${detected_languages[@]}"
+}
+
 # Log token usage function
 function log_token_usage() {
     local module_name="$1"
@@ -45,7 +61,7 @@ function check_tools_and_files() {
     done
 
     # Prompt files necessary for documentation generation
-    local required_files=("high_level_doc_prompt.txt" "system_summary_prompt.txt")
+    local required_files=("high_level_doc_prompt.txt" "system_summary_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt")
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
             echo "Error: Missing required file: $prompt_folder/$file"
@@ -55,7 +71,7 @@ function check_tools_and_files() {
 
     # Exit if any of the required tools are missing
     if [ ${#missing_tools[@]} -ne 0 ]; then
-        echo "Error: The following tools are required but not installed:"
+        echo "Error: The following tools are required but the path was not found:"
         for missing_tool in "${missing_tools[@]}"; do
             echo " - $missing_tool"
         done
@@ -69,7 +85,7 @@ is_skippable() {
   local path=$1
 
   # List of directories/files to skip
-  local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js" "init")
+  local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js" "init" ".gv")
   
   for skip_item in "${skip_dirs_files[@]}"; do
     if [[ "$path" == *"$skip_item"* ]]; then
@@ -86,34 +102,43 @@ is_skippable() {
 }
 
 # Generate documentation for an individual module
-function generate_individual_module_md() {
-    local module_path="$1"
-    local docs_folder="$2"
+function create_module_documentation() {
+    local path_to_module="$1"
+    local documentation_directory="$2"
     
     # Skip predefined patterns
-    if is_skippable "$module_path"; then
-        echo "Skipped $module_path as it's in the skippable list."
+    if is_skippable "$path_to_module"; then
+        echo "Skipped $path_to_module as it's on the exclusion list."
         return
     fi
     
-    local module_name=$(basename "$module_path")
-    local module_contents=$(<"$module_path")
+    local name_of_module=$(basename "$path_to_module")
+    local content_of_module=$(<"$path_to_module")
 
-    # Generate high-level documentation using bito
-    local high_level_doc=$(echo -e "Module: $module_name\n---\n$module_contents" | bito -p "$prompt_folder/high_level_doc_prompt.txt")
+    # Create high-level documentation using bito
+    local high_level_documentation=$(echo -e "Module: $name_of_module\n---\n$content_of_module" | bito -p "$prompt_folder/high_level_doc_prompt.txt")
+    # Record the number of tokens used for the documentation
+    log_token_usage "$name_of_module" "$content_of_module" "$high_level_documentation"
 
-    # Log token usage for both input and output
-    log_token_usage "$module_name" "$module_contents" "$high_level_doc"
+    # Create a Mermaid diagram for the module
+    local mermaid_diagram=$(create_mermaid_diagram "$name_of_module" "$content_of_module")
+    # Record the number of tokens used for the Mermaid diagram
+    log_token_usage "$name_of_module" "$content_of_module" "$mermaid_diagram"
 
-    # Save the high-level documentation to a markdown file
-    if [ $? -eq 0 ]; then
-        local module_md_file="$docs_folder/${module_name}_High_Level_Doc.md"
-        echo -e "## Module: $module_name\n$high_level_doc" > "$module_md_file"
-        echo "Saved module doc to $module_md_file"
-    else
-        echo "Bito operation failed for module: $module_name"
-        return 1
-    fi
+    # Write both pieces of documentation to a Markdown file
+    if [ $? -eq 0 ]; then 
+        local markdown_documentation_file="$documentation_directory/${name_of_module}_Documentation.md"
+        echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file" 
+        # Ensure that the Mermaid diagram is not empty or just whitespace
+        if [[ -n "$mermaid_diagram" && "$mermaid_diagram" =~ [^[:space:]] ]]; then 
+            # Add the Mermaid diagram to the Markdown file
+            echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
+        fi 
+        echo "Documentation saved to $markdown_documentation_file" 
+    else 
+        echo "Documentation creation failed for module: $name_of_module" 
+        return 1 
+    fi 
 }
 
 # Generate a flow map for codebase using code2flow
@@ -136,8 +161,69 @@ generate_flow_map() {
     local files_to_process=($(find "$folder_to_document" -type f -name "$file_extension"))
 
     # Generate the flow map
-    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet
+    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
 }
+
+create_mermaid_diagram() {
+    local module_name="$1"
+    local module_contents="$2"
+    local mermaid_definition="flowchart\n$module_contents"
+    local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+    local mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+    echo "$mermaid_flow_map"
+}
+
+extract_and_call_bito() {
+  local filename=$1
+  local lines=()
+  local current_module=""
+  local current_objectives=""
+  local capture_objectives=false
+  local output=""
+
+  # Read the file line by line into the array
+  while IFS= read -r line; do
+    lines+=("$line")
+  done < "$filename"
+
+  # Loop through the lines to process them
+  for line in "${lines[@]}"; do
+    if [[ $line =~ ^##\ Module:\ (.*) ]]; then
+      # If we hit a new Module, process the previous one if it exists
+      if [[ -n $current_module && -n $current_objectives ]]; then
+        # Combine the module name with its objectives
+        output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
+      fi
+      # Save the module name from the capture group
+      current_module=${BASH_REMATCH[1]}
+      # Reset the current objectives
+      current_objectives=""
+      capture_objectives=false
+    elif [[ $line =~ ^-\ \*\*Primary\ Objectives\*\*: ]]; then
+      capture_objectives=true
+      # Extract objectives starting after the colon and space
+      current_objectives+=$(echo $line | sed 's/.*\*\*Primary Objectives\*\*: //')$'\n'
+    elif $capture_objectives && [[ $line =~ ^-\ .+ ]]; then
+      # If we're capturing objectives, keep appending them until we hit another section
+      current_objectives+=$(echo $line | sed 's/^-\ //')$'\n'
+    elif [[ $line == "## "* || $line == "" ]]; then
+      # Stop capturing objectives if we hit the next section or an empty line
+      capture_objectives=false
+    fi
+  done
+
+  # Don't forget to process the last module if it exists
+  if [[ -n $current_module && -n $current_objectives ]]; then
+    output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
+  fi
+
+  # Call bito with the final output and the system introduction prompt
+  echo -e "$output" | bito -p "$2"
+}
+
+# Example call to the function:
+# extract_and_call_bito "High_Level_Doc.md" "System_Introduction_Prompt.txt"
+
 
 function main() {
     # Check if required tools and files are present
@@ -164,7 +250,7 @@ function main() {
     fi
 
     # Define the path to the aggregated markdown file
-    aggregated_md_file="$docs_folder/Aggregated_High_Level_Doc.md"
+    aggregated_md_file="$docs_folder/High_Level_Doc.md"
 
     # Clear existing aggregated markdown file if it exists
     if [ -f "$aggregated_md_file" ]; then
@@ -176,19 +262,43 @@ function main() {
 
     # Generate high-level documentation for each found module file
     for module_file in $module_files; do
-        generate_individual_module_md "$module_file" "$docs_folder"
+        # generate_individual_module_md "$module_file" "$docs_folder"
+        create_module_documentation "$module_file" "$docs_folder"
     done
     
     # Aggregate individual markdown files into a main document
     echo "# Full System Overview" > "$aggregated_md_file" 
-    for md_file in "$docs_folder"/*_High_Level_Doc.md; do
+    # for md_file in "$docs_folder"/*_High_Level_Doc.md; do
+    for md_file in "$docs_folder"/*_Documentation.md; do
         if [ "$md_file" != "$aggregated_md_file" ]; then
             cat "$md_file" >> "$aggregated_md_file"
         fi
     done
 
+    # Extract content and call Bito for a system introduction and summary
+    local introduction_and_summary=$(extract_and_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
+
+    # Prepend the introduction and summary to the aggregated markdown file
+    # Save the current content of the aggregated file temporarily
+    local temp_file=$(mktemp)
+    mv "$aggregated_md_file" "$temp_file"
+
+    # Create a new aggregated file starting with the Markdown-formatted introduction title
+    echo -e "# Introduction :\n" > "$aggregated_md_file"
+
+    # Append the introduction and summary
+    echo "$introduction_and_summary" >> "$aggregated_md_file"
+
+    # Append the rest of the original aggregated content
+    cat "$temp_file" >> "$aggregated_md_file"
+
+    # Remove the temporary file
+    rm "$temp_file"
+    
     # Define the programming languages for which flow maps are to be generated
-    local languages="py js ruby php"
+    local languages=$(detect_languages_compatible_with_code2flow "$folder_to_document")
+    echo "Detected languages: $(detect_languages_compatible_with_code2flow "$folder_to_document")"
+
     for lang in $languages; do
         # Define paths to the flow map image and dot graph files
         local flow_map_file="$docs_folder/flow_map_${lang}.png"
@@ -201,18 +311,19 @@ function main() {
             # Convert the dot graph file to an image using the dot tool
             dot -Tpng "$flow_map_gv_file" -o "$flow_map_file"
 
-            # Append the generated flow map image to the aggregated markdown file
-            echo -e "\n\n## Flow Map ($lang)\n" >> "$aggregated_md_file"
-            echo -e "![Flow Map ($lang)](flow_map_${lang}.png)\n" >> "$aggregated_md_file"
-            
-            # Generate a system summary using Bito and append to the markdown file
-            system_summary_prompt="$prompt_folder/system_summary_prompt.txt"
-            bito_output=$(cat "$system_summary_prompt" "$flow_map_gv_file" | bito -p "$system_summary_prompt")
-
-            # Append the Bito output to the aggregated high-level documentation file
-            echo -e "\n\n## System Summary\n" >> "$aggregated_md_file"
-            echo -e "$bito_output" >> "$aggregated_md_file"
+            # Only append the markdown link if the image was successfully created
+            if [ -f "$flow_map_file" ]; then
+                # Append the generated flow map image to the aggregated markdown file
+                echo -e "\n\n## Flow Map ($lang)\n" >> "$aggregated_md_file"
+                echo -e "![Flow Map ($lang)](flow_map_${lang}.png)\n" >> "$aggregated_md_file"
+            fi
+        else
+            echo "Failed to generate flow map for $lang."
         fi
+
+        # Generate a system summary using Bito and append to the markdown file
+        system_summary_prompt="$prompt_folder/system_summary_prompt.txt"
+        bito_output=$(cat "$system_summary_prompt" "$flow_map_gv_file" | bito -p "$system_summary_prompt")
     done
 
     # Notify the user that the documentation has been generated

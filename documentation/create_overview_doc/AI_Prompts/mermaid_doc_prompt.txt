@@ -1,0 +1,9 @@
+Create a basic example of the level-1 Data Flow Diagram (DFD) in Mermaid for the provided code, ensure there are no () for function calls, just say the name of the function:
+example syntax without parenthesis for function names without parenthesis.
+graph LR
+  User[User] -->|Provides Spotify Credentials| A(SpotifyOAuth)
+  A -->|Creates Spotipy Object| B[Spotipy Object]
+  B -->|Gets User Info| C[get_user]
+  B -->|Adjusts Volume| D[adjust_volume]
+  B -->|Controls Playback| E[play_pause]
+  B -->|Controls Song Selection| F[next_song, prev_song]
