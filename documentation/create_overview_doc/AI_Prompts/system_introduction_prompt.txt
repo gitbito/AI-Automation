@@ -1,1 +1,1 @@
-Give a high level system overview of this program and its purpose using the provided context, keep it concise. This is not a conversation.
+Give a brief high level system overview and its purpose using the provided context for this program, keep it detailed, concise and confident. This is not a conversation.
