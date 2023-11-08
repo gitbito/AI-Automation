@@ -61,7 +61,7 @@ function check_tools_and_files() {
     done
 
     # Prompt files necessary for documentation generation
-    local required_files=("high_level_doc_prompt.txt" "system_summary_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt")
+    local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt")
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
             echo "Error: Missing required file: $prompt_folder/$file"
@@ -101,6 +101,41 @@ is_skippable() {
   return 1
 }
 
+# Function to call bito with retry logic
+call_bito_with_retry() {
+    local input_text=$1
+    local prompt_file_path=$2
+    local attempt=1
+    local output
+    local MAX_RETRIES=5
+    local RETRY_DELAY=10 # Define this with the appropriate delay in seconds
+
+    while [ $attempt -le $MAX_RETRIES ]; do
+        # Log status message to stderr to avoid mixing with actual output
+        echo "Attempt $attempt: Running bito..." >&2
+
+        # Call bito and capture output
+        output=$(echo -e "$input_text" | bito -p "$prompt_file_path")
+        
+        # Check if the output has more than one word
+        if [[ $(echo "$output" | wc -w) -le 1 ]]; then
+            # Log error message to stderr
+            echo "Attempt $attempt: bito command failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
+            sleep $RETRY_DELAY
+            ((attempt++))
+        else
+            # Log success message to stderr and output the actual content to stdout
+            echo "Attempt $attempt: bito command succeeded with sufficient content." >&2
+            echo "$output"
+            return 0
+        fi
+    done
+
+    # Log final error message to stderr
+    echo "Failed to call bito after $MAX_RETRIES attempts with adequate content." >&2
+    return 1
+}
+
 # Generate documentation for an individual module
 function create_module_documentation() {
     local path_to_module="$1"
@@ -115,30 +150,37 @@ function create_module_documentation() {
     local name_of_module=$(basename "$path_to_module")
     local content_of_module=$(<"$path_to_module")
 
-    # Create high-level documentation using bito
-    local high_level_documentation=$(echo -e "Module: $name_of_module\n---\n$content_of_module" | bito -p "$prompt_folder/high_level_doc_prompt.txt")
+    # Create high-level documentation using bito with retry logic
+    local high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
+    if [ $? -ne 0 ]; then
+        echo "High-level documentation creation failed for module: $name_of_module"
+        return 1
+    fi
+
     # Record the number of tokens used for the documentation
     log_token_usage "$name_of_module" "$content_of_module" "$high_level_documentation"
 
     # Create a Mermaid diagram for the module
     local mermaid_diagram=$(create_mermaid_diagram "$name_of_module" "$content_of_module")
+    if [ $? -ne 0 ]; then
+        echo "Mermaid diagram creation failed for module: $name_of_module"
+        return 1
+    fi
+    
     # Record the number of tokens used for the Mermaid diagram
     log_token_usage "$name_of_module" "$content_of_module" "$mermaid_diagram"
 
     # Write both pieces of documentation to a Markdown file
-    if [ $? -eq 0 ]; then 
-        local markdown_documentation_file="$documentation_directory/${name_of_module}_Documentation.md"
-        echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file" 
-        # Ensure that the Mermaid diagram is not empty or just whitespace
-        if [[ -n "$mermaid_diagram" && "$mermaid_diagram" =~ [^[:space:]] ]]; then 
-            # Add the Mermaid diagram to the Markdown file
-            echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
-        fi 
-        echo "Documentation saved to $markdown_documentation_file" 
-    else 
-        echo "Documentation creation failed for module: $name_of_module" 
-        return 1 
+    local markdown_documentation_file="$documentation_directory/${name_of_module}_Documentation.md"
+    echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file"
+    
+    # Ensure that the Mermaid diagram is not empty or just whitespace
+    if [[ -n "$mermaid_diagram" && "$mermaid_diagram" =~ [^[:space:]] ]]; then 
+        # Add the Mermaid diagram to the Markdown file
+        echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
     fi 
+    
+    echo "Documentation saved to $markdown_documentation_file"
 }
 
 # Generate a flow map for codebase using code2flow
@@ -164,16 +206,53 @@ generate_flow_map() {
     code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
 }
 
+# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
+generate_mermaid_diagram() {
+    local md_file="$1"
+    # Strip the .md extension if present and then append it back to ensure correctness
+    local md_file_base="${md_file%.md}"
+
+    if command -v mmdc >/dev/null 2>&1; then
+        echo "Generating Mermaid diagrams in markdown file..."
+        # Overwrite the markdown file with the generated diagram references
+        mmdc -i "${md_file_base}.md" -o "${md_file_base}.md" && echo "Mermaid diagrams updated in ${md_file_base}.md" || echo "Failed to update diagrams."
+    else
+        echo "Mermaid CLI not found; skipping diagram generation."
+    fi
+}
+
 create_mermaid_diagram() {
     local module_name="$1"
     local module_contents="$2"
     local mermaid_definition="flowchart\n$module_contents"
-    local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
-    local mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-    echo "$mermaid_flow_map"
+    local mermaid_flow_map
+    local attempt=1
+    local MAX_RETRIES=10
+    local RETRY_DELAY=5 # seconds
+    local error_message=""
+
+    while [ $attempt -le $MAX_RETRIES ]; do
+        local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+
+        mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+
+        if [[ $(echo "$mermaid_flow_map" | wc -w) -gt 1 ]]; then
+            # We have a valid mermaid diagram
+            echo "$mermaid_flow_map"
+            return 0
+        else
+            error_message+="Attempt $attempt: bito call for Mermaid diagram failed or returned insufficient content. Retrying in $RETRY_DELAY seconds...\n"
+            sleep $RETRY_DELAY
+            ((attempt++))
+        fi
+    done
+
+    echo -e "$error_message"
+    echo "Failed to create Mermaid diagram after $MAX_RETRIES attempts."
+    return 1
 }
 
-extract_and_call_bito() {
+extract_module_names_and_associated_objectives_then_call_bito() {
   local filename=$1
   local lines=()
   local current_module=""
@@ -221,10 +300,6 @@ extract_and_call_bito() {
   echo -e "$output" | bito -p "$2"
 }
 
-# Example call to the function:
-# extract_and_call_bito "High_Level_Doc.md" "System_Introduction_Prompt.txt"
-
-
 function main() {
     # Check if required tools and files are present
     check_tools_and_files
@@ -258,8 +333,7 @@ function main() {
     fi
 
     # Find all module files with the specified extensions in the provided folder
-    module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' \))
-
+    module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' -o -name '*.sh' \))
     # Generate high-level documentation for each found module file
     for module_file in $module_files; do
         # generate_individual_module_md "$module_file" "$docs_folder"
@@ -276,7 +350,7 @@ function main() {
     done
 
     # Extract content and call Bito for a system introduction and summary
-    local introduction_and_summary=$(extract_and_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
+    local introduction_and_summary=$(extract_module_names_and_associated_objectives_then_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
 
     # Prepend the introduction and summary to the aggregated markdown file
     # Save the current content of the aggregated file temporarily
@@ -314,17 +388,16 @@ function main() {
             # Only append the markdown link if the image was successfully created
             if [ -f "$flow_map_file" ]; then
                 # Append the generated flow map image to the aggregated markdown file
-                echo -e "\n\n## Flow Map ($lang)\n" >> "$aggregated_md_file"
+                echo -e "\n\n## Full System Flow Map ($lang)\n" >> "$aggregated_md_file"
                 echo -e "![Flow Map ($lang)](flow_map_${lang}.png)\n" >> "$aggregated_md_file"
             fi
         else
             echo "Failed to generate flow map for $lang."
         fi
-
-        # Generate a system summary using Bito and append to the markdown file
-        system_summary_prompt="$prompt_folder/system_summary_prompt.txt"
-        bito_output=$(cat "$system_summary_prompt" "$flow_map_gv_file" | bito -p "$system_summary_prompt")
     done
+
+    # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
+    generate_mermaid_diagram "$aggregated_md_file"
 
     # Notify the user that the documentation has been generated
     echo "Documentation generated in $docs_folder"
