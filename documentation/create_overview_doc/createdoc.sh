@@ -341,7 +341,7 @@ function main() {
     done
     
     # Aggregate individual markdown files into a main document
-    echo "# Full System Overview" > "$aggregated_md_file" 
+    echo "# Module Overview" > "$aggregated_md_file" 
     # for md_file in "$docs_folder"/*_High_Level_Doc.md; do
     for md_file in "$docs_folder"/*_Documentation.md; do
         if [ "$md_file" != "$aggregated_md_file" ]; then
