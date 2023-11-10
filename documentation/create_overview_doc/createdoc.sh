@@ -50,7 +50,7 @@ function log_token_usage() {
 # Ensure necessary tools and files are present
 function check_tools_and_files() {
     # Tools required for this script
-    local required_tools=("bito" "code2flow" "dot")
+    local required_tools=("bito" "code2flow" "dot" "mmdc")
     local missing_tools=()
 
     # Check if each tool is installed
@@ -74,6 +74,26 @@ function check_tools_and_files() {
         echo "Error: The following tools are required but the path was not found:"
         for missing_tool in "${missing_tools[@]}"; do
             echo " - $missing_tool"
+            # Provide specific installation instructions for installing missing tools
+            if [ "$missing_tool" == "bito" ]; then
+                echo "   Install Bito CLI on MAC and Linux with:"
+                echo "   sudo curl https://alpha.bito.ai/downloads/cli/install.sh -fsSL | bash"
+                echo "   On Archlinux, install with AUR helpers like yay or paru:"
+                echo "   yay -S bito-cli or paru -S bito-cli"
+                echo "   For Windows, download and install the MSI from Bito's website."
+                echo "   Follow the instructions provided by the installer."
+            elif [ "$missing_tool" == "mmdc" ]; then
+                echo "   Install Mermaid CLI with npm:"
+                echo "   npm install -g @mermaid-js/mermaid-cli"
+            elif [ "$missing_tool" == "code2flow" ]; then
+                echo "   Install code2flow using pip:"
+                echo "   pip3 install code2flow"
+                echo "   If you do not have graphviz installed, find it at:"
+                echo "   https://graphviz.org/download/"
+            elif [ "$missing_tool" == "dot" ]; then
+                echo "   Install graphviz, which provides the 'dot' command:"
+                echo "   Refer to https://graphviz.org/download/ for installation instructions."
+            fi
         done
         echo "Exiting."
         exit 1
