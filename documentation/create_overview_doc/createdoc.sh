@@ -186,12 +186,14 @@ function create_module_documentation() {
         echo "Mermaid diagram creation failed for module: $name_of_module"
         return 1
     fi
-    
+    # Save the Mermaid diagram to a .mdd file
+    echo -e "$mermaid_diagram" >> "$documentation_directory/$name_of_module.mdd"
+
     # Record the number of tokens used for the Mermaid diagram
     log_token_usage "$name_of_module" "$content_of_module" "$mermaid_diagram"
 
     # Write both pieces of documentation to a Markdown file
-    local markdown_documentation_file="$documentation_directory/${name_of_module}_Documentation.md"
+    local markdown_documentation_file="$documentation_directory/${name_of_module}_Doc.md"
     echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file"
     
     # Ensure that the Mermaid diagram is not empty or just whitespace
@@ -199,77 +201,8 @@ function create_module_documentation() {
         # Add the Mermaid diagram to the Markdown file
         echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
     fi 
-    
+
     echo "Documentation saved to $markdown_documentation_file"
-}
-
-# Generate a flow map for codebase using code2flow
-generate_flow_map() {
-    local folder_to_document=$1
-    local flow_map_file=$2
-    local lang_option=$3
-
-    # Determine the file extension based on the language option
-    local file_extension
-    case $lang_option in
-        "py") file_extension="*.py" ;;      
-        "js") file_extension="*.js" ;;      
-        "ruby") file_extension="*.rb" ;;    
-        "php") file_extension="*.php" ;;    
-        *) file_extension="*.*" ;;  
-    esac
-
-    # Find all the files with the specified extension
-    local files_to_process=($(find "$folder_to_document" -type f -name "$file_extension"))
-
-    # Generate the flow map
-    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
-}
-
-# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
-generate_mermaid_diagram() {
-    local md_file="$1"
-    # Strip the .md extension if present and then append it back to ensure correctness
-    local md_file_base="${md_file%.md}"
-
-    if command -v mmdc >/dev/null 2>&1; then
-        echo "Generating Mermaid diagrams in markdown file..."
-        # Overwrite the markdown file with the generated diagram references
-        mmdc -i "${md_file_base}.md" -o "${md_file_base}.md" && echo "Mermaid diagrams updated in ${md_file_base}.md" || echo "Failed to update diagrams."
-    else
-        echo "Mermaid CLI not found; skipping diagram generation."
-    fi
-}
-
-create_mermaid_diagram() {
-    local module_name="$1"
-    local module_contents="$2"
-    local mermaid_definition="flowchart\n$module_contents"
-    local mermaid_flow_map
-    local attempt=1
-    local MAX_RETRIES=10
-    local RETRY_DELAY=5 # seconds
-    local error_message=""
-
-    while [ $attempt -le $MAX_RETRIES ]; do
-        local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
-
-        mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-
-        if [[ $(echo "$mermaid_flow_map" | wc -w) -gt 1 ]]; then
-            # We have a valid mermaid diagram
-            echo "$mermaid_flow_map"
-            return 0
-        else
-            error_message+="Attempt $attempt: bito call for Mermaid diagram failed or returned insufficient content. Retrying in $RETRY_DELAY seconds...\n"
-            sleep $RETRY_DELAY
-            ((attempt++))
-        fi
-    done
-
-    echo -e "$error_message"
-    echo "Failed to create Mermaid diagram after $MAX_RETRIES attempts."
-    return 1
 }
 
 extract_module_names_and_associated_objectives_then_call_bito() {
@@ -320,6 +253,124 @@ extract_module_names_and_associated_objectives_then_call_bito() {
   echo -e "$output" | bito -p "$2"
 }
 
+# Generate a flow map for codebase using code2flow
+generate_flow_map() {
+    local folder_to_document=$1
+    local flow_map_file=$2
+    local lang_option=$3
+
+    # Determine the file extension based on the language option
+    local file_extension
+    case $lang_option in
+        "py") file_extension="*.py" ;;      
+        "js") file_extension="*.js" ;;      
+        "ruby") file_extension="*.rb" ;;    
+        "php") file_extension="*.php" ;;    
+        *) file_extension="*.*" ;;  
+    esac
+
+    # Find all the files with the specified extension
+    local files_to_process=($(find "$folder_to_document" -type f -name "$file_extension"))
+
+    # Generate the flow map
+    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
+}
+
+# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
+generate_mermaid_diagram() {
+    local md_file="$1"
+    # Strip the .md extension if present and then append it back to ensure correctness
+    local md_file_base="${md_file%.md}"
+
+    if command -v mmdc >/dev/null 2>&1; then
+        echo "Generating Mermaid diagrams in markdown file..."
+        # Overwrite the markdown file with the generated diagram references
+        mmdc -i "${md_file_base}.md" -o "${md_file_base}.md" && echo "Mermaid diagrams updated in ${md_file_base}.md" || echo "Failed to update diagrams."
+    else
+        echo "Mermaid CLI not found; skipping diagram generation."
+    fi
+}
+
+create_mermaid_diagram() {
+    local module_name="$1"
+    local module_contents="$2"
+    local mermaid_definition="flowchart\n$module_contents"
+    local mermaid_flow_map
+    local attempt=1
+    local MAX_RETRIES=10
+    local RETRY_DELAY=5 # seconds
+    local error_message=""
+    
+    while [ $attempt -le $MAX_RETRIES ]; do
+        local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+
+        mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+
+        if [[ $(echo "$mermaid_flow_map" | wc -w) -gt 1 ]]; then
+            # We have a valid mermaid diagram
+            echo "$mermaid_flow_map"
+            return 0
+        else
+            error_message+="Attempt $attempt: bito call for Mermaid diagram failed or returned insufficient content. Retrying in $RETRY_DELAY seconds...\n"
+            sleep $RETRY_DELAY
+            ((attempt++))
+        fi
+    done
+
+    echo -e "$error_message"
+    echo "Failed to create Mermaid diagram after $MAX_RETRIES attempts."
+    return 1
+}
+
+generate_mdd_overview() {
+    local dir="$1"
+    local system_overview_prompt_file="$prompt_folder/system_overview_mermaid_update_prompt.txt"
+    local overview_mdd_file="$dir/overview.mdd"
+    local temp_file
+
+    echo "Starting to generate overview.mdd..."
+
+    # Read existing overview.mdd content
+    local existing_overview_content=""
+    if [ -f "$overview_mdd_file" ]; then
+        existing_overview_content=$(cat "$overview_mdd_file")
+    fi
+
+    # Iterate over each .mdd file in the directory
+    for mdd_file in "$dir"/*.mdd; do
+        if [ -f "$mdd_file" ] && [ "$mdd_file" != "$overview_mdd_file" ]; then
+            echo "Processing $mdd_file..."
+            local mermaid_script=$(cat "$mdd_file")
+
+            if [[ -n "$mermaid_script" ]]; then
+                echo "Mermaid script found. Processing with bito..."
+                # Concatenate existing overview content with new Mermaid script
+                local combined_content="$existing_overview_content\n$mermaid_script"
+
+                # Use bito to process and update the overview
+                temp_file=$(mktemp)
+                echo -e "$combined_content" | bito -p "$system_overview_prompt_file" > "$temp_file"
+
+                # Update the existing overview content with the processed content
+                existing_overview_content=$(cat "$temp_file")
+                rm "$temp_file"
+            else
+                echo "No content found in $mdd_file"
+            fi
+        fi
+    done
+
+    # Save the updated content back to overview.mdd
+    echo -e "$existing_overview_content" > "$overview_mdd_file"
+
+    if [ ! -s "$overview_mdd_file" ]; then
+        echo "Failed to create overview.mdd or the file is empty."
+        return 1
+    else
+        echo "Mermaid overview generated successfully: $overview_mdd_file"
+    fi
+}
+
 function main() {
     # Check if required tools and files are present
     check_tools_and_files
@@ -362,12 +413,22 @@ function main() {
     
     # Aggregate individual markdown files into a main document
     echo "# Module Overview" > "$aggregated_md_file" 
-    # for md_file in "$docs_folder"/*_High_Level_Doc.md; do
-    for md_file in "$docs_folder"/*_Documentation.md; do
+    for md_file in "$docs_folder"/*_Doc.md; do
         if [ "$md_file" != "$aggregated_md_file" ]; then
             cat "$md_file" >> "$aggregated_md_file"
         fi
     done
+
+    # Call generate_mdd_overview function here, after all .mdd files are created
+    generate_mdd_overview "$docs_folder" "$aggregated_md_file"
+    
+    # Append the content of overview.mdd to the aggregated file
+    if [ -f "$docs_folder/overview.mdd" ]; then
+        echo -e "\n# Full System Overview\n" >> "$aggregated_md_file"
+        cat "$docs_folder/overview.mdd" >> "$aggregated_md_file"
+    else
+        echo "Overview file not found or empty."
+    fi
 
     # Extract content and call Bito for a system introduction and summary
     local introduction_and_summary=$(extract_module_names_and_associated_objectives_then_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
@@ -418,6 +479,7 @@ function main() {
 
     # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
     generate_mermaid_diagram "$aggregated_md_file"
+
 
     # Notify the user that the documentation has been generated
     echo "Documentation generated in $docs_folder"
