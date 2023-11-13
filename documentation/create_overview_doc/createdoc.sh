@@ -6,35 +6,43 @@ log_file="bito_usage_log.txt"
 # Directory containing prompt files for NLP tasks
 prompt_folder="AI_Prompts"  
 
-# Log token usage function
-function log_token_usage() {
-    local module_name="$1"
-    local input_content="$2"
-    local output_content="$3"
+# Global variables for session token counts
+total_input_token_count=0
+total_output_token_count=0
 
-    # Calculate word and char counts for input and output
+# Update token usage function
+function update_token_usage() {
+    local input_content="$1"
+    local output_content="$2"
+
+    # Calculate word counts for input and output
     local input_word_count=$(echo "$input_content" | wc -w | tr -d ' ')
     local output_word_count=$(echo "$output_content" | wc -w | tr -d ' ')
-    local total_word_count=$(( input_word_count + output_word_count ))
 
-    local input_char_count=$(echo "$input_content" | wc -c | tr -d ' ')
-    local output_char_count=$(echo "$output_content" | wc -c | tr -d ' ')
-    local total_char_count=$(( input_char_count + output_char_count ))
+    # Convert word counts to token counts using the approximation (1 word ≈ 1.3 tokens)
+    local input_token_count=$(echo "$input_word_count * 1.34" | bc)
+    local output_token_count=$(echo "$output_word_count * 1.34" | bc)
 
-    # Log the token usage details to the log file
+    # Update session token counts
+    total_input_token_count=$(echo "$total_input_token_count + $input_token_count" | bc)
+    total_output_token_count=$(echo "$total_output_token_count + $output_token_count" | bc)
+}
+
+# Function to log total token usage at the end of the session
+function log_total_token_usage() {
+    local log_file="$1" # Pass the log file path as an argument
+
+    # Log the total token usage details to the log file
     local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
     echo "-----------------------------------------" | tee -a "$log_file"
-    echo "$timestamp - Token Usage for Module: '$module_name'" | tee -a "$log_file"
-    echo "Input: Words = $input_word_count, Chars = $input_char_count" | tee -a "$log_file"
-    echo "Output: Words = $output_word_count, Chars = $output_char_count" | tee -a "$log_file"
-    echo "Total: Words = $total_word_count, Chars = $total_char_count" | tee -a "$log_file"
+    echo "$timestamp - Total Token Usage for Session" | tee -a "$log_file"
+    echo "Total Input: Tokens = $total_input_token_count" | tee -a "$log_file"
+    echo "Total Output: Tokens = $total_output_token_count" | tee -a "$log_file"
     echo "-----------------------------------------" | tee -a "$log_file"
 }
 
 # Ensure necessary tools and files are present
 function check_tools_and_files() {
-    # Tools required for this script
-    # local required_tools=("bito" "code2flow" "dot" "mmdc")
     local required_tools=("bito" "mmdc")
     local missing_tools=()
 
@@ -124,6 +132,8 @@ call_bito_with_retry() {
             # Log success message to stderr and output the actual content to stdout
             echo "Attempt $attempt: bito command succeeded with sufficient content." >&2
             echo "$output"
+            # Update token usage
+            update_token_usage "$input_text" "$output"
             return 0
         fi
     done
@@ -154,8 +164,8 @@ function create_module_documentation() {
         return 1
     fi
 
-    # Record the number of tokens used for the documentation
-    log_token_usage "$name_of_module" "$content_of_module" "$high_level_documentation"
+    # Update the number of tokens used for the documentation
+    update_token_usage "$content_of_module" "$high_level_documentation"
 
     # Create a Mermaid diagram for the module
     local mermaid_diagram=$(create_mermaid_diagram "$name_of_module" "$content_of_module")
@@ -166,8 +176,8 @@ function create_module_documentation() {
     # Save the Mermaid diagram to a .mdd file
     echo -e "$mermaid_diagram" >> "$documentation_directory/$name_of_module.mdd"
 
-    # Record the number of tokens used for the Mermaid diagram
-    log_token_usage "$name_of_module" "$content_of_module" "$mermaid_diagram"
+    # Update the number of tokens used for the Mermaid diagram
+    update_token_usage "$content_of_module" "$mermaid_diagram"
 
     # Write both pieces of documentation to a Markdown file
     local markdown_documentation_file="$documentation_directory/${name_of_module}_Doc.md"
@@ -183,51 +193,49 @@ function create_module_documentation() {
 }
 
 extract_module_names_and_associated_objectives_then_call_bito() {
-  local filename=$1
-  local lines=()
-  local current_module=""
-  local current_objectives=""
-  local capture_objectives=false
-  local output=""
+    local filename=$1
+    local prompt_file_path=$2
+    local lines=()
+    local current_module=""
+    local current_objectives=""
+    local capture_objectives=false
+    local combined_output=""
 
-  # Read the file line by line into the array
-  while IFS= read -r line; do
-    lines+=("$line")
-  done < "$filename"
+    # Read the file line by line into the array
+    while IFS= read -r line; do
+        lines+=("$line")
+    done < "$filename"
 
-  # Loop through the lines to process them
-  for line in "${lines[@]}"; do
-    if [[ $line =~ ^##\ Module:\ (.*) ]]; then
-      # If we hit a new Module, process the previous one if it exists
-      if [[ -n $current_module && -n $current_objectives ]]; then
-        # Combine the module name with its objectives
-        output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
-      fi
-      # Save the module name from the capture group
-      current_module=${BASH_REMATCH[1]}
-      # Reset the current objectives
-      current_objectives=""
-      capture_objectives=false
-    elif [[ $line =~ ^-\ \*\*Primary\ Objectives\*\*: ]]; then
-      capture_objectives=true
-      # Extract objectives starting after the colon and space
-      current_objectives+=$(echo $line | sed 's/.*\*\*Primary Objectives\*\*: //')$'\n'
-    elif $capture_objectives && [[ $line =~ ^-\ .+ ]]; then
-      # If we're capturing objectives, keep appending them until we hit another section
-      current_objectives+=$(echo $line | sed 's/^-\ //')$'\n'
-    elif [[ $line == "## "* || $line == "" ]]; then
-      # Stop capturing objectives if we hit the next section or an empty line
-      capture_objectives=false
+    # Loop through the lines to process them
+    for line in "${lines[@]}"; do
+        if [[ $line =~ ^##\ Module:\ (.*) ]]; then
+            if [[ -n $current_module && -n $current_objectives ]]; then
+                combined_output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
+            fi
+            current_module=${BASH_REMATCH[1]}
+            current_objectives=""
+            capture_objectives=false
+        elif [[ $line =~ ^-\ \*\*Primary\ Objectives\*\*: ]]; then
+            capture_objectives=true
+            current_objectives+=$(echo $line | sed 's/.*\*\*Primary Objectives\*\*: //')$'\n'
+        elif $capture_objectives && [[ $line =~ ^-\ .+ ]]; then
+            current_objectives+=$(echo $line | sed 's/^-\ //')$'\n'
+        elif [[ $line == "## "* || $line == "" ]]; then
+            capture_objectives=false
+        fi
+    done
+
+    if [[ -n $current_module && -n $current_objectives ]]; then
+        combined_output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
     fi
-  done
 
-  # Don't forget to process the last module if it exists
-  if [[ -n $current_module && -n $current_objectives ]]; then
-    output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
-  fi
+    # Call bito with the final output
+    local bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
+    
+    # Update token usage
+    update_token_usage "$combined_output" "$bito_output"
 
-  # Call bito with the final output and the system introduction prompt
-  echo -e "$output" | bito -p "$2"
+    echo "$bito_output"
 }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
@@ -304,6 +312,8 @@ generate_mdd_overview() {
                 # Use bito to process and update the overview
                 temp_file=$(mktemp)
                 echo -e "$combined_content" | bito -p "$system_overview_prompt_file" > "$temp_file"
+                # Update token usage for the processed content and the existing overview content
+                update_token_usage "$combined_content" "$(cat "$temp_file")"
 
                 # Update the existing overview content with the processed content
                 existing_overview_content=$(cat "$temp_file")
@@ -412,6 +422,8 @@ function main() {
     # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
     generate_mermaid_diagram "$aggregated_md_file"
 
+    # Finally, log the total token usage at the end of the script
+    log_total_token_usage "$log_file"
 
     # Notify the user that the documentation has been generated
     echo "Documentation generated in $docs_folder"
