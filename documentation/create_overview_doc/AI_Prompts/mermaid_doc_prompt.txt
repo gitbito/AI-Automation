@@ -1,0 +1,1 @@
+Create a basic example of the level-1 Data Flow Diagram (DFD) in Mermaid for the provided code, ensure there are no empty open parenthese () for function calls, just say the name of the function:

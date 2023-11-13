@@ -1,12 +1,10 @@
----
-
 # High-Level Documentation Generator
 
-This tool is designed to simplify the process of creating high-level documentation for your project directory. It generates detailed information for each module, creates flow maps to visualize code execution paths, logs usage metrics, and aggregates all generated documentation.
+This tool simplifies the process of creating high-level documentation for project directories. It analyzes modules, generates flow maps, tracks usage metrics, and compiles comprehensive documentation.
 
 ## Features
 
-- **Customizable Module Analysis**: Uses a user-editable prompt `high_level_doc_prompt.txt` from the `AI_Prompts` directory to analyze each module. Modify the prompt to extract details like:
+- **AI Enhanced Module Analysis**: Leverages an AI-driven process to analyze each module, using a user-editable prompt high_level_doc_prompt.txt from the AI_Prompts directory. You can adjust the prompt to obtain a variety of module insights such as:
    - Module Name
    - Primary Objectives
    - Key Functions and Roles
@@ -17,42 +15,44 @@ This tool is designed to simplify the process of creating high-level documentati
    - Performance Factors
    - Reusability and Adaptability
 
+- **Auto-Retry Logic**: Implements retry mechanisms and sophisticated error handling for the bito command, ensuring reliable documentation generation in unstable environments.
+
+- **Visualization with Mermaid.js Flow Maps**: Utilizes AI to generate Mermaid.js scripts that graphically represent module interactions and the flow of code. While the tool has been tested with Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash, you are encouraged to experiment with other languages as well.
+
+- **Mermaid CLI Image Conversion**: Employs the Mermaid CLI to convert Mermaid.js diagrams into images. This feature provides a graphical depiction of the code architecture, enhancing the visual appeal and readability of the documentation.
+
 - **Skippable Files and Directories**: The tool ignores specific files and directories by default, such as logs, node_modules, .gradle, and more. Adjust the skip list in the script to suit your project needs.
 
-- **Code Flow Maps**: Generates flow maps in PNG format using code2flow. Please note that while the tool can document multiple languages, flowmap generation supports only Python, JavaScript, Ruby, and PHP.
+- **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching document, complete with visual flow maps.
 
-- **Comprehensive Documentation**: Aggregates generated documentation from each module into an overarching markdown file.
+- **Documentation Metrics Logging**: Records the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
 
-- **Documentation Metrics Logging**: Records word and character counts for each module in the bito_usage_log.txt file.
-
-- **Required Tool and File Verification**: The script checks for necessary tools and files before starting.
+- **Required Tool and File Verification**: The script checks for necessary tools and files before starting. ("bito" "mmdc")
 
 ## Supported Languages
 
-### Code Documentation
-Our code documentation tool is designed with flexibility in mind. It currently includes built-in support for Python, C, C++, Java, JavaScript, Go, Rust, Ruby, and PHP. However, it's also easily extensible to other programming languages. 
+Our code documentation tool is designed with flexibility in mind. It currently includes built-in support for Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash. However, it's also easily extensible to other programming languages. 
 
 To add support for a new language, simply add the file extension to the following line in the code extraction prompt:
 
 ```bash
-module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' \))
+module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' -o -name '*.sh' \))
 ```
-
-### Flowmaps
-While our tool is versatile in creating code documentation, the flowmap feature currently supports only a subset of languages. Specifically, we can generate flowmaps for Python, JavaScript, Ruby, and PHP.
 
 ## Prerequisites
 
 Ensure the following tools are installed:
 
-- `bito`
-- `code2flow`
-- `dot`
+- `bito` : https://github.com/gitbito/CLI
+
+- `mermaidcli` : https://github.com/mermaid-js/mermaid-cli
 
 Also, make sure these prompt files are present in a specified prompt folder (`AI_Prompts` by default):
 
 - `high_level_doc_prompt.txt`
-- `system_summary_prompt.txt`
+- `mermaid_doc_prompt.txt`
+- `system_introduction_prompt.txt`
+- `system_overview_mermaid_update_prompt.txt`
 
 ## How to Use
 
@@ -68,15 +68,14 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 
 ## Output
 
-Upon successful execution, the tool generates a directory named `doc_<folder_name>`. Inside, you will find:
+Upon successful execution, the tool generates a directory named doc_<folder_name>
 
-- Individual module markdown files, named as `<module_name>_High_Level_Doc.md`.
-- An aggregated documentation named `Aggregated_High_Level_Doc.md`, which combines individual module documentations and flow maps.
-- Flow maps for supported languages in PNG format: `flow_map_<lang>.png`.
-- A summarized system documentation which explains the overall system's flow and functionality.
+The directory includes:
+
+- Module Documentation: Individual markdown files for each module, titled <module_name>_Doc.md, detailing the module's purpose, functions, and interactions.
+
+- Aggregated Documentation: A comprehensive markdown file High_Level_Doc.md, which consolidates the documentation from each module. This file also includes SVG format flow maps created by Mermaid.js for a visual overview of module interactions, and a final Full System Flow Map in PNG format generated by code2flow for a broader system perspective.
 
 ## Skip List
 
 Certain directories and files are skipped during the documentation process. This includes commonly ignored directories like `node_modules`, `logs`, etc., and files with extensions like `.json`, etc. You can update the skip list within the script as per your requirements.
-
----
