@@ -9,18 +9,18 @@ prompt_folder="AI_Prompts"
 # Detect languages available in the directory 
 # This function detects the programming languages available in the directory to be documented and returns a space-separated string of the languages found.
 # These are the languages for which flow maps will be generated using code2flow
-detect_languages_compatible_with_code2flow() {
-    local folder_to_scan=$1
-    local detected_languages=()
+# detect_languages_compatible_with_code2flow() {
+#     local folder_to_scan=$1
+#     local detected_languages=()
 
-    # Add to detected_languages if files with the extension are found
-    [[ $(find "$folder_to_scan" -type f -name '*.py' | wc -l) -ne 0 ]] && detected_languages+=("py")
-    [[ $(find "$folder_to_scan" -type f -name '*.js' | wc -l) -ne 0 ]] && detected_languages+=("js")
-    [[ $(find "$folder_to_scan" -type f -name '*.rb' | wc -l) -ne 0 ]] && detected_languages+=("ruby")
-    [[ $(find "$folder_to_scan" -type f -name '*.php' | wc -l) -ne 0 ]] && detected_languages+=("php")
+#     # Add to detected_languages if files with the extension are found
+#     [[ $(find "$folder_to_scan" -type f -name '*.py' | wc -l) -ne 0 ]] && detected_languages+=("py")
+#     [[ $(find "$folder_to_scan" -type f -name '*.js' | wc -l) -ne 0 ]] && detected_languages+=("js")
+#     [[ $(find "$folder_to_scan" -type f -name '*.rb' | wc -l) -ne 0 ]] && detected_languages+=("ruby")
+#     [[ $(find "$folder_to_scan" -type f -name '*.php' | wc -l) -ne 0 ]] && detected_languages+=("php")
 
-    echo "${detected_languages[@]}"
-}
+#     echo "${detected_languages[@]}"
+# }
 
 # Log token usage function
 function log_token_usage() {
@@ -50,7 +50,8 @@ function log_token_usage() {
 # Ensure necessary tools and files are present
 function check_tools_and_files() {
     # Tools required for this script
-    local required_tools=("bito" "code2flow" "dot" "mmdc")
+    # local required_tools=("bito" "code2flow" "dot" "mmdc")
+    local required_tools=("bito" "mmdc")
     local missing_tools=()
 
     # Check if each tool is installed
@@ -61,7 +62,7 @@ function check_tools_and_files() {
     done
 
     # Prompt files necessary for documentation generation
-    local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt")
+    local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt" "system_overview_mermaid_update_prompt.txt")
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
             echo "Error: Missing required file: $prompt_folder/$file"
@@ -85,14 +86,14 @@ function check_tools_and_files() {
             elif [ "$missing_tool" == "mmdc" ]; then
                 echo "   Install Mermaid CLI with npm:"
                 echo "   npm install -g @mermaid-js/mermaid-cli"
-            elif [ "$missing_tool" == "code2flow" ]; then
-                echo "   Install code2flow using pip:"
-                echo "   pip3 install code2flow"
-                echo "   If you do not have graphviz installed, find it at:"
-                echo "   https://graphviz.org/download/"
-            elif [ "$missing_tool" == "dot" ]; then
-                echo "   Install graphviz, which provides the 'dot' command:"
-                echo "   Refer to https://graphviz.org/download/ for installation instructions."
+            # elif [ "$missing_tool" == "code2flow" ]; then
+            #     echo "   Install code2flow using pip:"
+            #     echo "   pip3 install code2flow"
+            #     echo "   If you do not have graphviz installed, find it at:"
+            #     echo "   https://graphviz.org/download/"
+            # elif [ "$missing_tool" == "dot" ]; then
+            #     echo "   Install graphviz, which provides the 'dot' command:"
+            #     echo "   Refer to https://graphviz.org/download/ for installation instructions."
             fi
         done
         echo "Exiting."
@@ -254,27 +255,27 @@ extract_module_names_and_associated_objectives_then_call_bito() {
 }
 
 # Generate a flow map for codebase using code2flow
-generate_flow_map() {
-    local folder_to_document=$1
-    local flow_map_file=$2
-    local lang_option=$3
+# generate_flow_map() {
+#     local folder_to_document=$1
+#     local flow_map_file=$2
+#     local lang_option=$3
 
-    # Determine the file extension based on the language option
-    local file_extension
-    case $lang_option in
-        "py") file_extension="*.py" ;;      
-        "js") file_extension="*.js" ;;      
-        "ruby") file_extension="*.rb" ;;    
-        "php") file_extension="*.php" ;;    
-        *) file_extension="*.*" ;;  
-    esac
+#     # Determine the file extension based on the language option
+#     local file_extension
+#     case $lang_option in
+#         "py") file_extension="*.py" ;;      
+#         "js") file_extension="*.js" ;;      
+#         "ruby") file_extension="*.rb" ;;    
+#         "php") file_extension="*.php" ;;    
+#         *) file_extension="*.*" ;;  
+#     esac
 
-    # Find all the files with the specified extension
-    local files_to_process=($(find "$folder_to_document" -type f -name "$file_extension"))
+#     # Find all the files with the specified extension
+#     local files_to_process=($(find "$folder_to_document" -type f -name "$file_extension"))
 
-    # Generate the flow map
-    code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
-}
+#     # Generate the flow map
+#     code2flow --output "$flow_map_file" --language "$lang_option" "${files_to_process[@]}" --quiet --hide-legend
+# }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
 generate_mermaid_diagram() {
@@ -354,6 +355,9 @@ generate_mdd_overview() {
                 # Update the existing overview content with the processed content
                 existing_overview_content=$(cat "$temp_file")
                 rm "$temp_file"
+
+                # Delete the processed .mdd file
+                rm "$mdd_file"
             else
                 echo "No content found in $mdd_file"
             fi
@@ -419,17 +423,6 @@ function main() {
         fi
     done
 
-    # Call generate_mdd_overview function here, after all .mdd files are created
-    generate_mdd_overview "$docs_folder" "$aggregated_md_file"
-    
-    # Append the content of overview.mdd to the aggregated file
-    if [ -f "$docs_folder/overview.mdd" ]; then
-        echo -e "\n# Full System Overview\n" >> "$aggregated_md_file"
-        cat "$docs_folder/overview.mdd" >> "$aggregated_md_file"
-    else
-        echo "Overview file not found or empty."
-    fi
-
     # Extract content and call Bito for a system introduction and summary
     local introduction_and_summary=$(extract_module_names_and_associated_objectives_then_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
 
@@ -444,38 +437,64 @@ function main() {
     # Append the introduction and summary
     echo "$introduction_and_summary" >> "$aggregated_md_file"
 
+    # Call generate_mdd_overview function here, after all .mdd files are created
+    generate_mdd_overview "$docs_folder" "$aggregated_md_file"
+    
+    # Append the content of overview.mdd to the aggregated file extracting only the Mermaid diagram block
+    if [ -f "$docs_folder/overview.mdd" ]; then
+        echo -e "\n# Full System Overview\n" >> "$aggregated_md_file"
+
+        # Extract and append only the Mermaid diagram block
+        awk '/^```mermaid$/,/^```$/' "$docs_folder/overview.mdd" >> "$aggregated_md_file"
+    else
+        echo "Overview file not found or empty."
+    fi
+
     # Append the rest of the original aggregated content
     cat "$temp_file" >> "$aggregated_md_file"
 
     # Remove the temporary file
     rm "$temp_file"
+
+    # # Call generate_mdd_overview function here, after all .mdd files are created
+    # generate_mdd_overview "$docs_folder" "$aggregated_md_file"
     
-    # Define the programming languages for which flow maps are to be generated
-    local languages=$(detect_languages_compatible_with_code2flow "$folder_to_document")
-    echo "Detected languages: $(detect_languages_compatible_with_code2flow "$folder_to_document")"
+    # # Append the content of overview.mdd to the aggregated file extracting only the Mermaid diagram block
+    # if [ -f "$docs_folder/overview.mdd" ]; then
+    #     echo -e "\n# Full System Overview\n" >> "$aggregated_md_file"
 
-    for lang in $languages; do
-        # Define paths to the flow map image and dot graph files
-        local flow_map_file="$docs_folder/flow_map_${lang}.png"
-        local flow_map_gv_file="$docs_folder/flow_map_${lang}.gv"
+    #     # Extract and append only the Mermaid diagram block
+    #     awk '/^```mermaid$/,/^```$/' "$docs_folder/overview.mdd" >> "$aggregated_md_file"
+    # else
+    #     echo "Overview file not found or empty."
+    # fi
+    
+    # # Define the programming languages for which flow maps are to be generated
+    # local languages=$(detect_languages_compatible_with_code2flow "$folder_to_document")
+    # echo "Detected languages: $(detect_languages_compatible_with_code2flow "$folder_to_document")"
 
-        # Generate flow map dot graph file for the given language
-        generate_flow_map "$folder_to_document" "$flow_map_gv_file" "$lang"
+    # for lang in $languages; do
+    #     # Define paths to the flow map image and dot graph files
+    #     local flow_map_file="$docs_folder/flow_map_${lang}.png"
+    #     local flow_map_gv_file="$docs_folder/flow_map_${lang}.gv"
+
+    #     # Generate flow map dot graph file for the given language
+    #     generate_flow_map "$folder_to_document" "$flow_map_gv_file" "$lang"
         
-        if [ -f "$flow_map_gv_file" ]; then
-            # Convert the dot graph file to an image using the dot tool
-            dot -Tpng "$flow_map_gv_file" -o "$flow_map_file"
+    #     if [ -f "$flow_map_gv_file" ]; then
+    #         # Convert the dot graph file to an image using the dot tool
+    #         dot -Tpng "$flow_map_gv_file" -o "$flow_map_file"
 
-            # Only append the markdown link if the image was successfully created
-            if [ -f "$flow_map_file" ]; then
-                # Append the generated flow map image to the aggregated markdown file
-                echo -e "\n\n## Full System Flow Map ($lang)\n" >> "$aggregated_md_file"
-                echo -e "![Flow Map ($lang)](flow_map_${lang}.png)\n" >> "$aggregated_md_file"
-            fi
-        else
-            echo "Failed to generate flow map for $lang."
-        fi
-    done
+    #         # Only append the markdown link if the image was successfully created
+    #         if [ -f "$flow_map_file" ]; then
+    #             # Append the generated flow map image to the aggregated markdown file
+    #             echo -e "\n\n## Full System Flow Map ($lang)\n" >> "$aggregated_md_file"
+    #             echo -e "![Flow Map ($lang)](flow_map_${lang}.png)\n" >> "$aggregated_md_file"
+    #         fi
+    #     else
+    #         echo "Failed to generate flow map for $lang."
+    #     fi
+    # done
 
     # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
     generate_mermaid_diagram "$aggregated_md_file"
