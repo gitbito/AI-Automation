@@ -43,6 +43,7 @@ function log_total_token_usage() {
 
 # Ensure necessary tools and files are present
 function check_tools_and_files() {
+    echo "Checking required tools and files for documentation generation..." >&2
     local required_tools=("bito" "mmdc")
     local missing_tools=()
 
@@ -57,14 +58,14 @@ function check_tools_and_files() {
     local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt" "system_overview_mermaid_update_prompt.txt")
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
-            echo "Error: Missing required file: $prompt_folder/$file"
+            echo -e "\nError: Missing required file: $prompt_folder/$file"
             exit 1
         fi
     done
 
     # Exit if any of the required tools are missing
     if [ ${#missing_tools[@]} -ne 0 ]; then
-        echo "Error: The following tools are required but the path was not found:"
+        echo -e "\nError: The following tools are required but the path was not found:"
         for missing_tool in "${missing_tools[@]}"; do
             echo " - $missing_tool"
             # Provide specific installation instructions for installing missing tools
@@ -83,6 +84,7 @@ function check_tools_and_files() {
         echo "Exiting."
         exit 1
     fi
+    echo -e "All required tools and files are present. Proceeding...\n" >&2
 }
 
 # Function to check if a path should be skipped based on predefined patterns
@@ -115,31 +117,33 @@ call_bito_with_retry() {
     local MAX_RETRIES=5
     local RETRY_DELAY=10 # Define this with the appropriate delay in seconds
 
-    while [ $attempt -le $MAX_RETRIES ]; do
-        # Log status message to stderr to avoid mixing with actual output
-        echo "Attempt $attempt: Running bito..." >&2
+    # Extracting filename from the prompt file path for logging
+    local filename=$(basename "$prompt_file_path")
 
+    while [ $attempt -le $MAX_RETRIES ]; do
+        # Informing about the start of a new attempt and the file being processed
+        echo "Calling bito with retry logic. Attempt $attempt of $MAX_RETRIES with prompt file '$filename'..." >&2
         # Call bito and capture output
         output=$(echo -e "$input_text" | bito -p "$prompt_file_path")
-        
-        # Check if the output has more than one word
+
+        # Checking the output length
         if [[ $(echo "$output" | wc -w) -le 1 ]]; then
-            # Log error message to stderr
-            echo "Attempt $attempt: bito command failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
+            # Output is insufficient, preparing for retry
+            echo "Attempt $attempt: bito call for file '$filename' completed but returned insufficient content. Retrying in $RETRY_DELAY seconds..." >&2
             sleep $RETRY_DELAY
             ((attempt++))
         else
-            # Log success message to stderr and output the actual content to stdout
-            echo "Attempt $attempt: bito command succeeded with sufficient content." >&2
+            # Successful execution with sufficient output
+            echo "Attempt $attempt: Success! bito call for file '$filename' returned sufficient content." >&2
             echo "$output"
-            # Update token usage
+            # Optional: Update token usage or any other necessary housekeeping
             update_token_usage "$input_text" "$output"
             return 0
         fi
     done
 
-    # Log final error message to stderr
-    echo "Failed to call bito after $MAX_RETRIES attempts with adequate content." >&2
+    # All attempts failed, final error message
+    echo "All $MAX_RETRIES attempts to call bito with prompt file '$filename' have failed to return adequate content. Exiting with error." >&2
     return 1
 }
 
@@ -147,8 +151,8 @@ call_bito_with_retry() {
 function create_module_documentation() {
     local path_to_module="$1"
     local documentation_directory="$2"
-    
-    # Skip predefined patterns
+    echo "Creating documentation for module: $path_to_module" >&2
+
     if is_skippable "$path_to_module"; then
         echo "Skipped $path_to_module as it's on the exclusion list."
         return
@@ -157,39 +161,32 @@ function create_module_documentation() {
     local name_of_module=$(basename "$path_to_module")
     local content_of_module=$(<"$path_to_module")
 
-    # Create high-level documentation using bito with retry logic
     local high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
     if [ $? -ne 0 ]; then
         echo "High-level documentation creation failed for module: $name_of_module"
         return 1
     fi
-
-    # Update the number of tokens used for the documentation
     update_token_usage "$content_of_module" "$high_level_documentation"
 
-    # Create a Mermaid diagram for the module
     local mermaid_diagram=$(create_mermaid_diagram "$name_of_module" "$content_of_module")
     if [ $? -ne 0 ]; then
         echo "Mermaid diagram creation failed for module: $name_of_module"
         return 1
     fi
-    # Save the Mermaid diagram to a .mdd file
-    echo -e "$mermaid_diagram" >> "$documentation_directory/$name_of_module.mdd"
 
-    # Update the number of tokens used for the Mermaid diagram
+    local mdd_file="$documentation_directory/$name_of_module.mdd"
+    if [ ! -s "$mdd_file" ]; then
+        echo -e "$mermaid_diagram" > "$mdd_file"
+    fi
     update_token_usage "$content_of_module" "$mermaid_diagram"
 
-    # Write both pieces of documentation to a Markdown file
     local markdown_documentation_file="$documentation_directory/${name_of_module}_Doc.md"
     echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file"
-    
-    # Ensure that the Mermaid diagram is not empty or just whitespace
     if [[ -n "$mermaid_diagram" && "$mermaid_diagram" =~ [^[:space:]] ]]; then 
-        # Add the Mermaid diagram to the Markdown file
         echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
     fi 
 
-    echo "Documentation saved to $markdown_documentation_file"
+    echo -e "Documentation saved to $markdown_documentation_file\n\n"
 }
 
 extract_module_names_and_associated_objectives_then_call_bito() {
@@ -200,6 +197,12 @@ extract_module_names_and_associated_objectives_then_call_bito() {
     local current_objectives=""
     local capture_objectives=false
     local combined_output=""
+    local attempt=1
+    local MAX_RETRIES=5
+    local RETRY_DELAY=10 # seconds
+    local bito_output
+
+    echo -e "Extracting module names and objectives from file: $filename\n" >&2
 
     # Read the file line by line into the array
     while IFS= read -r line; do
@@ -209,7 +212,8 @@ extract_module_names_and_associated_objectives_then_call_bito() {
     # Loop through the lines to process them
     for line in "${lines[@]}"; do
         if [[ $line =~ ^##\ Module:\ (.*) ]]; then
-            if [[ -n $current_module && -n $current_objectives ]]; then
+            if [[ -n $current_module ]]; then
+                echo "Processing module: $current_module with objectives" >&2
                 combined_output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
             fi
             current_module=${BASH_REMATCH[1]}
@@ -225,17 +229,66 @@ extract_module_names_and_associated_objectives_then_call_bito() {
         fi
     done
 
-    if [[ -n $current_module && -n $current_objectives ]]; then
+    if [[ -n $current_module ]]; then
+        echo "Processing module: $current_module with objectives" >&2
         combined_output+="Module: $current_module\n---\nPrimary Objectives:\n$current_objectives\n\n"
     fi
 
-    # Call bito with the final output
-    local bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
-    
-    # Update token usage
-    update_token_usage "$combined_output" "$bito_output"
+    # Retry logic for calling bito
+    while [ $attempt -le $MAX_RETRIES ]; do
+        echo "Attempt $attempt: Running bito for module: $current_module" >&2
+        bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
 
-    echo "$bito_output"
+        # Check if the output has more than one word
+        if [[ $(echo "$bito_output" | wc -w) -le 1 ]]; then
+            echo "Attempt $attempt: bito command for module: $current_module failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
+            sleep $RETRY_DELAY
+            ((attempt++))
+        else
+            echo "Attempt $attempt: bito command for module: $current_module succeeded with sufficient content." >&2
+            echo "$bito_output"
+            # Update token usage
+            update_token_usage "$combined_output" "$bito_output"
+            return 0
+        fi
+    done
+
+    echo "Failed to call bito for module: $current_module after $MAX_RETRIES attempts with adequate content." >&2
+    return 1
+}
+
+# Function to fix Mermaid diagram syntax
+fix_mermaid_syntax() {
+    local mermaid_content="$1"
+    local fixed_mermaid_content
+
+    # Replace all occurrences of "()" with an empty string
+    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+
+    echo "$fixed_mermaid_content"
+}
+
+# Function to validate Mermaid diagram syntax
+validate_mermaid_syntax() {
+    local mermaid_content="$1"
+    local temp_mmd_file=$(mktemp)
+
+    # Write Mermaid content to a temporary file
+    echo "$mermaid_content" > "$temp_mmd_file"
+
+    # Attempt to parse the Mermaid diagram using mmdc
+    local output=$(mmdc -i "$temp_mmd_file" -o /dev/null 2>&1)
+    local status=$?
+
+    # Clean up the temporary file
+    rm "$temp_mmd_file"
+
+    if [ $status -ne 0 ]; then
+        echo "Mermaid syntax validation failed. Please check the diagram syntax." >&2
+        echo "$output" >&2
+        return 1
+    fi
+    return 0
 }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
@@ -268,15 +321,23 @@ create_mermaid_diagram() {
 
         mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
 
+        # Fix syntax in the Mermaid content
+        mermaid_flow_map=$(fix_mermaid_syntax "$mermaid_flow_map")
+
         if [[ $(echo "$mermaid_flow_map" | wc -w) -gt 1 ]]; then
-            # We have a valid mermaid diagram
-            echo "$mermaid_flow_map"
-            return 0
+            # Validate Mermaid syntax
+            if validate_mermaid_syntax "$mermaid_flow_map"; then
+                # We have a valid mermaid diagram
+                echo "$mermaid_flow_map"
+                return 0
+            else
+                error_message+="Attempt $attempt: Mermaid syntax validation failed. Retrying in $RETRY_DELAY seconds...\n"
+            fi
         else
             error_message+="Attempt $attempt: bito call for Mermaid diagram failed or returned insufficient content. Retrying in $RETRY_DELAY seconds...\n"
-            sleep $RETRY_DELAY
-            ((attempt++))
         fi
+        sleep $RETRY_DELAY
+        ((attempt++))
     done
 
     echo -e "$error_message"
@@ -286,9 +347,11 @@ create_mermaid_diagram() {
 
 generate_mdd_overview() {
     local dir="$1"
-    local system_overview_prompt_file="$prompt_folder/system_overview_mermaid_update_prompt.txt"
+    local mermaid_doc_prompt_file="$prompt_folder/system_overview_mermaid_update_prompt.txt"
     local overview_mdd_file="$dir/overview.mdd"
     local temp_file
+    local MAX_RETRIES=5
+    local RETRY_DELAY=5 # seconds
 
     echo "Starting to generate overview.mdd..."
 
@@ -304,23 +367,45 @@ generate_mdd_overview() {
             echo "Processing $mdd_file..."
             local mermaid_script=$(cat "$mdd_file")
 
+            # Apply fix_mermaid_syntax to correct any syntax issues in the Mermaid script before processing
+            mermaid_script=$(fix_mermaid_syntax "$mermaid_script")
+
             if [[ -n "$mermaid_script" ]]; then
                 echo "Mermaid script found. Processing with bito..."
-                # Concatenate existing overview content with new Mermaid script
-                local combined_content="$existing_overview_content\n$mermaid_script"
 
-                # Use bito to process and update the overview
-                temp_file=$(mktemp)
-                echo -e "$combined_content" | bito -p "$system_overview_prompt_file" > "$temp_file"
-                # Update token usage for the processed content and the existing overview content
-                update_token_usage "$combined_content" "$(cat "$temp_file")"
+                local attempt=1
+                while [ $attempt -le $MAX_RETRIES ]; do
+                    echo "Attempt $attempt: Processing Mermaid script for $mdd_file" >&2
+                    # Concatenate existing overview content with new Mermaid script
+                    local combined_content="Previous content\n$existing_overview_content\nNew content to be added\n$mermaid_script"
 
-                # Update the existing overview content with the processed content
-                existing_overview_content=$(cat "$temp_file")
-                rm "$temp_file"
+                    # Use bito to process and update the overview
+                    temp_file=$(mktemp)
+                    echo -e "$combined_content" | bito -p "$mermaid_doc_prompt_file" > "$temp_file"
 
-                # Delete the processed .mdd file
-                rm "$mdd_file"
+                    # Validate the Mermaid script
+                    if validate_mermaid_syntax "$(cat "$temp_file")"; then
+                        echo -e "Valid Mermaid diagram generated successfully for $mdd_file.\n" >&2
+                        # Update the existing overview content with the processed content
+                        existing_overview_content=$(cat "$temp_file")
+                        rm "$temp_file"
+                        # Delete the processed .mdd file
+                        rm "$mdd_file"
+                        # Update token usage
+                        update_token_usage "$combined_content" "$existing_overview_content"
+                        break
+                    else
+                        echo -e "Invalid Mermaid diagram syntax for attempt $attempt. Retrying...\n" >&2
+                        rm "$temp_file"
+                        sleep $RETRY_DELAY
+                        ((attempt++))
+                    fi
+                done
+
+                if [ $attempt -gt $MAX_RETRIES ]; then
+                    echo "Failed to generate a valid Mermaid diagram for $mdd_file after $MAX_RETRIES attempts."
+                    return 1
+                fi
             else
                 echo "No content found in $mdd_file"
             fi
