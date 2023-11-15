@@ -53,6 +53,7 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 
 - `high_level_doc_prompt.txt`
 - `mermaid_doc_prompt.txt`
+- `fix_mermaid_syntax_prompt.txt`
 - `system_introduction_prompt.txt`
 - `system_overview_mermaid_update_prompt.txt`
 
