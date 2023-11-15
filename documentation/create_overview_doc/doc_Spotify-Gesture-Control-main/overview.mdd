@@ -1,41 +1,19 @@
+Sure, here is the consolidated Mermaid Markdown diagram:
 
-graph TB
-    A[User] -->|Hand Gestures| B[Gesture Recognition]
-    B --> C{mediapipe}
-    C --> D[Hand Detection]
-    C --> E[Landmark Detection]
-    D --> F[Hand Landmarks]
-    E --> F
-    F --> G{spotify_functions}
-    G --> H[Play/Pause]
-    G --> I[Next Song]
-    G --> J[Previous Song]
-    G --> K[Volume Control]
-graph TB
-    subgraph main.py
-        A[Start Capturing] -->|Capture Gesture| B[Gesture Recognition]
-        C[Get User] -->|User Details| D[Spotify Functions]
-    end
-    B --> E[Output Gesture]
-    D --> F[Output User]
-graph TB
-    SpotifyAPI(Spotify API)
-    User(User)
-    spotipy(spotipy_functions.py)
+```mermaid
+graph LR
+    A[User] -->|Provide Credentials| B(SpotifyOAuth)
+    B -->|Authenticate| C{Spotipy Object}
+    C --> D[Get User]
+    C --> E[Adjust Volume]
+    C --> F[Play/Pause]
+    C --> G[Next Song]
+    C --> H[Previous Song]
+    D --> I[User Info]
+    E --> J[Volume Info]
+    F --> K[Playback Info]
+    G --> L[Next Track Info]
+    H --> M[Previous Track Info]
+```
 
-    subgraph Spotify
-        SpotifyAPI
-    end
-
-    subgraph Application
-        spotipy
-    end
-
-    subgraph EndUser
-        User
-    end
-
-    User -- "User Actions (volume adjust, play, pause, next, prev)" --> spotipy
-    spotipy -- "API Calls" --> SpotifyAPI
-    SpotifyAPI -- "Response" --> spotipy
-    spotipy -- "Action Execution" --> User
+This diagram represents a user interacting with Spotify via an OAuth authentication process. After successful authentication, the user can control various aspects of their Spotify experience including user information, volume control, playback control, and song selection.
