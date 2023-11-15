@@ -365,21 +365,18 @@ create_mermaid_diagram() {
 
         mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
 
-        # Fix syntax in the Mermaid content
-        mermaid_flow_map=$(fix_mermaid_syntax "$mermaid_flow_map")
+        # Use fix_and_validate_mermaid to fix and validate Mermaid content
+        mermaid_flow_map=$(fix_and_validate_mermaid "$mermaid_flow_map")
+        local fix_and_validate_status=$?
 
-        if [[ $(echo "$mermaid_flow_map" | wc -w) -gt 1 ]]; then
-            # Validate Mermaid syntax
-            if validate_mermaid_syntax "$mermaid_flow_map"; then
-                # We have a valid mermaid diagram
-                echo "$mermaid_flow_map"
-                return 0
-            else
-                error_message+="Attempt $attempt: Mermaid syntax validation failed. Retrying in $RETRY_DELAY seconds...\n"
-            fi
+        if [ $fix_and_validate_status -eq 0 ]; then
+            # Mermaid syntax is valid or successfully fixed
+            echo "$mermaid_flow_map"
+            return 0
         else
-            error_message+="Attempt $attempt: bito call for Mermaid diagram failed or returned insufficient content. Retrying in $RETRY_DELAY seconds...\n"
+            error_message+="Attempt $attempt: Failed to fix or validate Mermaid syntax. Retrying in $RETRY_DELAY seconds...\n"
         fi
+
         sleep $RETRY_DELAY
         ((attempt++))
     done
