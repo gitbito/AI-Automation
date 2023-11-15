@@ -396,11 +396,8 @@ generate_mdd_overview() {
 
     echo "Starting to generate overview.mdd..."
 
-    # Read existing overview.mdd content
-    local existing_overview_content=""
-    if [ -f "$overview_mdd_file" ]; then
-        existing_overview_content=$(cat "$overview_mdd_file")
-    fi
+    # Initialize variable to store the most recent valid Mermaid diagram
+    local latest_valid_mermaid_content=""
 
     # Iterate over each .mdd file in the directory
     for mdd_file in "$dir"/*.mdd; do
@@ -421,23 +418,20 @@ generate_mdd_overview() {
             local attempt=1
             while [ $attempt -le $MAX_RETRIES ]; do
                 echo "Attempt $attempt: Processing Mermaid script for $mdd_file" >&2
-                # Concatenate existing overview content with new Mermaid script
-                local combined_content="Previous content\n$existing_overview_content\nNew content to be added\n$mermaid_script"
-
-                # Use bito to process and update the overview
+                # Use bito to process the Mermaid script
                 temp_file=$(mktemp)
-                echo -e "$combined_content" | bito -p "$mermaid_doc_prompt_file" > "$temp_file"
+                echo -e "$mermaid_script" | bito -p "$mermaid_doc_prompt_file" > "$temp_file"
 
                 # Validate the Mermaid script
                 if validate_mermaid_syntax "$(cat "$temp_file")"; then
                     echo -e "Valid Mermaid diagram generated successfully for $mdd_file.\n" >&2
-                    # Update the existing overview content with the processed content
-                    existing_overview_content=$(cat "$temp_file")
+                    # Update the latest valid Mermaid content
+                    latest_valid_mermaid_content=$(cat "$temp_file")
                     rm "$temp_file"
                     # Delete the processed .mdd file
                     rm "$mdd_file"
                     # Update token usage
-                    update_token_usage "$combined_content" "$existing_overview_content"
+                    update_token_usage "$mermaid_script" "$latest_valid_mermaid_content"
                     break
                 else
                     echo -e "Invalid Mermaid diagram syntax for attempt $attempt. Retrying...\n" >&2
@@ -454,14 +448,14 @@ generate_mdd_overview() {
         fi
     done
 
-    # Save the updated content back to overview.mdd
-    echo -e "$existing_overview_content" > "$overview_mdd_file"
-
-    if [ ! -s "$overview_mdd_file" ]; then
-        echo "Failed to create overview.mdd or the file is empty."
-        return 1
-    else
+    # Check if there is valid Mermaid content
+    if [ -n "$latest_valid_mermaid_content" ]; then
+        # Save the latest valid Mermaid content to overview.mdd
+        echo -e "$latest_valid_mermaid_content" > "$overview_mdd_file"
         echo "Mermaid overview generated successfully: $overview_mdd_file"
+    else
+        echo "Failed to create overview.mdd or no valid diagrams were found."
+        return 1
     fi
 }
 
