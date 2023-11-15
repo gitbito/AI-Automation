@@ -1,0 +1,17 @@
+Here's the unified Mermaid Markdown diagram you requested. It's enclosed within the code block delimiters:
+
+```mermaid
+graph LR  
+A[Command Line Arguments] --> B[parse_arguments]  
+B --> C[generate_commit_message]  
+C --> D[git diff]  
+D --> E[Write diff to file]  
+E --> F[bito CLI]  
+F --> G[Generate commit message]  
+G --> H[Write commit message to file]  
+H --> I[Remove diff file]  
+I --> J[Return commit message]  
+J --> K[Print commit message]
+```
+
+Please note that the diagram can only be visualized in a markdown viewer that supports Mermaid diagrams.
