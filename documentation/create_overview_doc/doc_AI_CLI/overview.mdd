@@ -1,0 +1,16 @@
+Here is the unified Mermaid Markdown diagram combining all the provided components:
+
+```mermaid
+graph TB
+    UserInput[User Input] -->|get_user_input| CLI[AI_CLI.py]
+    CLI -->|handle_command| Command[Command Handler]
+    Command -->|!clear| ClearHistory[Clear History]
+    Command -->|!multiline| MultiLine[Multi-line Input Mode]
+    Command -->|!help| Help[Print Help]
+    CLI -->|get_prompt_template| Template[Get Prompt Template]
+    CLI -->|requests.post| API[Local API]
+    API -->|response.json| Response[Get Response]
+    Response -->|print| Output[Assistant's Response]
+```
+
+This diagram represents a comprehensive system overview, showcasing the flow of components within the system.

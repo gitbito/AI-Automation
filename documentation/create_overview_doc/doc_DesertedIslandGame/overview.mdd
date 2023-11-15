@@ -1,0 +1,24 @@
+Sure, here is your combined Mermaid Markdown diagram enclosed within the required delimiters:
+
+```mermaid
+graph TD
+A[stats.py]
+B[print_event_positions]
+C[print_lives]
+D[print_escaped]
+E[print_drowned]
+F[print_starved]
+G[print_all_stats]
+A --> B
+A --> C
+A --> D
+A --> E
+A --> F
+A --> G
+G --> C
+G --> D
+G --> E
+G --> F
+```
+
+This diagram represents a system where the `stats.py` script interacts with all other components directly, and the `print_all_stats` script also interacts with `print_lives`, `print_escaped`, `print_drowned`, and `print_starved`.
