@@ -10,34 +10,22 @@ prompt_folder="AI_Prompts"
 total_input_token_count=0
 total_output_token_count=0
 
-# Update token usage function
-function update_token_usage() {
-    local input_content="$1"
-    local output_content="$2"
-
-    # Calculate word counts for input and output
-    local input_word_count=$(echo "$input_content" | wc -w | tr -d ' ')
-    local output_word_count=$(echo "$output_content" | wc -w | tr -d ' ')
-
-    # Convert word counts to token counts using the approximation (1 word ≈ 1.3 tokens)
-    local input_token_count=$(echo "$input_word_count * 1.34" | bc)
-    local output_token_count=$(echo "$output_word_count * 1.34" | bc)
-
-    # Update session token counts
-    total_input_token_count=$(echo "$total_input_token_count + $input_token_count" | bc)
-    total_output_token_count=$(echo "$total_output_token_count + $output_token_count" | bc)
+# Function to update token usage
+update_token_usage() {
+    local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
+    local output_tokens=$(echo "$2" | wc -w | awk '{print int($1 * 1.34)}')
+    total_input_token_count=$((total_input_token_count + input_tokens))
+    total_output_token_count=$((total_output_token_count + output_tokens))
 }
 
-# Function to log total token usage at the end of the session
-function log_total_token_usage() {
-    local log_file="$1" # Pass the log file path as an argument
-
-    # Log the total token usage details to the log file
-    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+# Function to log total token usage and session duration
+log_token_usage_and_session_duration() {
+    local duration=$(( $(date +%s) - start_time ))
     echo "-----------------------------------------" | tee -a "$log_file"
-    echo "$timestamp - Total Token Usage for Session" | tee -a "$log_file"
-    echo "Total Input: Tokens = $total_input_token_count" | tee -a "$log_file"
-    echo "Total Output: Tokens = $total_output_token_count" | tee -a "$log_file"
+    echo "$(date "+%Y-%m-%d %H:%M:%S") - Total Token Usage for Session" | tee -a "$log_file"
+    echo "Total Input Tokens = $total_input_token_count" | tee -a "$log_file"
+    echo "Total Output Tokens = $total_output_token_count" | tee -a "$log_file"
+    echo "Session Duration: $((duration / 3600))h $(((duration % 3600) / 60))m $((duration % 60))s" | tee -a "$log_file"
     echo "-----------------------------------------" | tee -a "$log_file"
 }
 
@@ -455,6 +443,9 @@ generate_mdd_overview() {
     fi
 }
 
+# Capture Start Time
+start_time=$(date +%s)
+
 function main() {
     # Check if required tools and files are present
     check_tools_and_files
@@ -539,8 +530,8 @@ function main() {
     # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
     generate_mermaid_diagram "$aggregated_md_file"
 
-    # Finally, log the total token usage at the end of the script
-    log_total_token_usage "$log_file"
+    # Log Session Duration and Total Token Usage to the log file
+    log_token_usage_and_session_duration
 
     # Notify the user that the documentation has been generated
     echo "Documentation generated in $docs_folder"
