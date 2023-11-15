@@ -136,7 +136,6 @@ call_bito_with_retry() {
             # Successful execution with sufficient output
             echo "Attempt $attempt: Success! bito call for file '$filename' returned sufficient content." >&2
             echo "$output"
-            # Optional: Update token usage or any other necessary housekeeping
             update_token_usage "$input_text" "$output"
             return 0
         fi
@@ -247,7 +246,6 @@ extract_module_names_and_associated_objectives_then_call_bito() {
         else
             echo "Attempt $attempt: bito command for module: $current_module succeeded with sufficient content." >&2
             echo "$bito_output"
-            # Update token usage
             update_token_usage "$combined_output" "$bito_output"
             return 0
         fi
@@ -271,7 +269,6 @@ fix_mermaid_syntax_with_bito() {
     local mermaid_content="$1"
     # Invoke bito AI with the Mermaid content and extract the Mermaid block
     local fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-    # Update token usage
     update_token_usage "$mermaid_content" "$fixed_mermaid_content"
     echo "$fixed_mermaid_content"
 }
@@ -430,7 +427,6 @@ generate_mdd_overview() {
                     rm "$temp_file"
                     # Delete the processed .mdd file
                     rm "$mdd_file"
-                    # Update token usage
                     update_token_usage "$mermaid_script" "$latest_valid_mermaid_content"
                     break
                 else

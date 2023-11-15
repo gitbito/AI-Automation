@@ -84,6 +84,7 @@ The directory includes:
 The Skip List feature enables the exclusion of specific files and directories from the documentation process. By default, the tool ignores common directories like `node_modules` and log files, as well as various temporary or compiled files.
 
 ### Updating the Skip List
+By customizing the Skip List, you gain control over the documentation content, ensuring it's concise, relevant, and tailored to showcase the most significant aspects of your project.
 
 To customize the Skip List to fit your project's needs, follow these steps:
 
@@ -108,5 +109,4 @@ To customize the Skip List to fit your project's needs, follow these steps:
 
 5. **Re-run the Script**:
    - Execute the script again to apply the new Skip List settings.
-
-By customizing the Skip List, you gain control over the documentation content, ensuring it's concise, relevant, and tailored to showcase the most significant aspects of your project.
+   
