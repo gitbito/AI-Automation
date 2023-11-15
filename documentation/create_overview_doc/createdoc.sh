@@ -408,19 +408,48 @@ generate_mdd_overview() {
             echo "Processing $mdd_file..."
             local mermaid_script=$(cat "$mdd_file")
 
-            # Use fix_and_validate_mermaid to fix and validate the Mermaid script
+            # Apply fix_and_validate_mermaid to each Mermaid script
             mermaid_script=$(fix_and_validate_mermaid "$mermaid_script")
-            local fix_and_validate_status=$?
+            local fix_status=$?
 
-            if [ $fix_and_validate_status -eq 0 ]; then
-                # Mermaid script is valid or successfully fixed
-                echo "Valid Mermaid diagram for $mdd_file processed successfully." >&2
-                # Update the existing overview content with the processed content
-                existing_overview_content+="\n$mermaid_script"
-                # Delete the processed .mdd file
-                rm "$mdd_file"
-            else
-                echo "Invalid Mermaid diagram for $mdd_file. Skipping this diagram." >&2
+            if [ $fix_status -ne 0 ]; then
+                echo "Mermaid diagram fixing/validation failed for $mdd_file. Skipping..."
+                continue
+            fi
+
+            echo "Mermaid script found. Processing with bito..."
+            local attempt=1
+            while [ $attempt -le $MAX_RETRIES ]; do
+                echo "Attempt $attempt: Processing Mermaid script for $mdd_file" >&2
+                # Concatenate existing overview content with new Mermaid script
+                local combined_content="Previous content\n$existing_overview_content\nNew content to be added\n$mermaid_script"
+
+                # Use bito to process and update the overview
+                temp_file=$(mktemp)
+                echo -e "$combined_content" | bito -p "$mermaid_doc_prompt_file" > "$temp_file"
+
+                # Validate the Mermaid script
+                if validate_mermaid_syntax "$(cat "$temp_file")"; then
+                    echo -e "Valid Mermaid diagram generated successfully for $mdd_file.\n" >&2
+                    # Update the existing overview content with the processed content
+                    existing_overview_content=$(cat "$temp_file")
+                    rm "$temp_file"
+                    # Delete the processed .mdd file
+                    rm "$mdd_file"
+                    # Update token usage
+                    update_token_usage "$combined_content" "$existing_overview_content"
+                    break
+                else
+                    echo -e "Invalid Mermaid diagram syntax for attempt $attempt. Retrying...\n" >&2
+                    rm "$temp_file"
+                    sleep $RETRY_DELAY
+                    ((attempt++))
+                fi
+            done
+
+            if [ $attempt -gt $MAX_RETRIES ]; then
+                echo "Failed to generate a valid Mermaid diagram for $mdd_file after $MAX_RETRIES attempts."
+                return 1
             fi
         fi
     done
