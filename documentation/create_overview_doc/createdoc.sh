@@ -11,7 +11,7 @@ total_input_token_count=0
 total_output_token_count=0
 
 # Function to update token usage
-update_token_usage() {
+function update_token_usage() {
     local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
     local output_tokens=$(echo "$2" | wc -w | awk '{print int($1 * 1.34)}')
     total_input_token_count=$((total_input_token_count + input_tokens))
@@ -19,7 +19,7 @@ update_token_usage() {
 }
 
 # Function to log total token usage and session duration
-log_token_usage_and_session_duration() {
+function log_token_usage_and_session_duration() {
     local duration=$(( $(date +%s) - start_time ))
     echo "-----------------------------------------" | tee -a "$log_file"
     echo "$(date "+%Y-%m-%d %H:%M:%S") - Total Token Usage for Session" | tee -a "$log_file"
@@ -29,21 +29,34 @@ log_token_usage_and_session_duration() {
     echo "-----------------------------------------" | tee -a "$log_file"
 }
 
-# Ensure necessary tools and files are present
+# Function to check if required tools and files are present
 function check_tools_and_files() {
     echo "Checking required tools and files for documentation generation..." >&2
-    local required_tools=("bito" "mmdc")
-    local missing_tools=()
 
-    # Check if each tool is installed
+    local required_tools=("bito" "mmdc")
+    local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt" "system_overview_mermaid_update_prompt.txt" "fix_mermaid_syntax_prompt.txt")
+
+    # Check for missing tools
     for tool in "${required_tools[@]}"; do
         if ! command -v "$tool" &> /dev/null; then
-            missing_tools+=("$tool")
+            echo -e "\nError: Tool $tool is required but not found."
+            case "$tool" in
+                "bito")
+                    echo "   Install Bito CLI on MAC and Linux with:"
+                    echo "   sudo curl https://alpha.bito.ai/downloads/cli/install.sh -fsSL | bash"
+                    echo "   On Archlinux, install with yay or paru: yay -S bito-cli or paru -S bito-cli"
+                    echo "   For Windows, download and install the MSI from Bito's website."
+                    echo "   Follow the instructions provided by the installer."
+                    ;;
+                "mmdc")
+                    echo "   Install Mermaid CLI with npm: npm install -g @mermaid-js/mermaid-cli"
+                    ;;
+            esac
+            exit 1
         fi
     done
 
-    # Prompt files necessary for documentation generation
-    local required_files=("high_level_doc_prompt.txt" "mermaid_doc_prompt.txt" "system_introduction_prompt.txt" "system_overview_mermaid_update_prompt.txt" "fix_mermaid_syntax_prompt.txt")
+    # Check for missing files
     for file in "${required_files[@]}"; do
         if [ ! -f "$prompt_folder/$file" ]; then
             echo -e "\nError: Missing required file: $prompt_folder/$file"
@@ -51,32 +64,11 @@ function check_tools_and_files() {
         fi
     done
 
-    # Exit if any of the required tools are missing
-    if [ ${#missing_tools[@]} -ne 0 ]; then 
-        echo -e "\nError: The following tools are required but the path was not found:"
-        for missing_tool in "${missing_tools[@]}"; do
-            echo " - $missing_tool"
-            # Provide specific installation instructions for installing missing tools
-            if [ "$missing_tool" == "bito" ]; then
-                echo "   Install Bito CLI on MAC and Linux with:"
-                echo "   sudo curl https://alpha.bito.ai/downloads/cli/install.sh -fsSL | bash"
-                echo "   On Archlinux, install with AUR helpers like yay or paru:"
-                echo "   yay -S bito-cli or paru -S bito-cli"
-                echo "   For Windows, download and install the MSI from Bito's website."
-                echo "   Follow the instructions provided by the installer."
-            elif [ "$missing_tool" == "mmdc" ]; then
-                echo "   Install Mermaid CLI with npm:"
-                echo "   npm install -g @mermaid-js/mermaid-cli"
-            fi
-        done
-        echo "Exiting."
-        exit 1
-    fi
     echo -e "All required tools and files are present. Proceeding...\n" >&2
 }
 
 # Function to check if a path should be skipped based on predefined patterns
-is_skippable() {
+function is_skippable() {
   local path=$1
 
   # List of directories/files to skip
@@ -97,7 +89,7 @@ is_skippable() {
 }
 
 # Function to call bito with retry logic
-call_bito_with_retry() {
+function call_bito_with_retry() {
     local input_text=$1
     local prompt_file_path=$2
     local attempt=1
@@ -176,7 +168,7 @@ function create_module_documentation() {
     echo -e "Documentation saved to $markdown_documentation_file\n\n"
 }
 
-extract_module_names_and_associated_objectives_then_call_bito() {
+function extract_module_names_and_associated_objectives_then_call_bito() {
     local filename=$1
     local prompt_file_path=$2
     local lines=()
@@ -244,7 +236,7 @@ extract_module_names_and_associated_objectives_then_call_bito() {
 }
 
 # Function to fix Mermaid diagram syntax
-fix_mermaid_syntax() {
+function fix_mermaid_syntax() {
     local mermaid_content="$1"
     local fixed_mermaid_content
     # Replace all occurrences of "()" with an empty string
@@ -253,7 +245,7 @@ fix_mermaid_syntax() {
 }
 
 # Function to fix Mermaid diagram syntax using bito AI
-fix_mermaid_syntax_with_bito() {
+function fix_mermaid_syntax_with_bito() {
     local mermaid_content="$1"
     # Invoke bito AI with the Mermaid content and extract the Mermaid block
     local fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
@@ -262,7 +254,7 @@ fix_mermaid_syntax_with_bito() {
 }
 
 # Function to validate Mermaid diagram syntax
-validate_mermaid_syntax() {
+function validate_mermaid_syntax() {
     local mermaid_content="$1"
     local temp_mmd_file=$(mktemp)
     # Write Mermaid content to a temporary file
@@ -281,7 +273,7 @@ validate_mermaid_syntax() {
 }
 
 # Wrapper function for Mermaid diagram validation and fixing
-fix_and_validate_mermaid() {
+function fix_and_validate_mermaid() {
     local mermaid_content="$1"
     
     # First, try to validate the original Mermaid content
@@ -321,7 +313,7 @@ fix_and_validate_mermaid() {
 }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
-generate_mermaid_diagram() {
+function generate_mermaid_diagram() {
     local md_file="$1"
     # Strip the .md extension if present and then append it back to ensure correctness
     local md_file_base="${md_file%.md}"
@@ -335,7 +327,8 @@ generate_mermaid_diagram() {
     fi
 }
 
-create_mermaid_diagram() {
+# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
+function create_mermaid_diagram() {
     local module_name="$1"
     local module_contents="$2"
     local mermaid_definition="flowchart\n$module_contents"
@@ -371,7 +364,8 @@ create_mermaid_diagram() {
     return 1
 }
 
-generate_mdd_overview() {
+# Function to generate an overview.mdd file containing a Mermaid diagram of the full system by combining all .mdd files in the provided directory and running bito on the combined content to generate a Mermaid diagram
+function generate_mdd_overview() {
     local dir="$1"
     local mermaid_doc_prompt_file="$prompt_folder/system_overview_mermaid_update_prompt.txt"
     local overview_mdd_file="$dir/overview.mdd"
