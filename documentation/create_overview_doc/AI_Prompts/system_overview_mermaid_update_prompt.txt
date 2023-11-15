@@ -1,2 +1,3 @@
-Using the provided Mermaid Markdown script. Ensure the updated overview accurately incorporates the content from the provided script. Place the resulting comprehensive Mermaid diagram within a ```mermaid block ending with ```
-Function calls without parameters should not have empty parenthesis, just use the name rather than with empty ().
+Using the provided Mermaid Markdown script. 
+Ensure the updated overview accurately incorporates the content from the provided script.
+Only provide a single modified Mermaid Markdown diagram script in plain text.
