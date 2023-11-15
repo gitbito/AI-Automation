@@ -27,7 +27,7 @@ This powerful tool streamlines the creation of high-level documentation for soft
 
 - **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching High_Level_Doc, complete with visual flow maps. 
 
-- **Documentation Metrics Logging**: Records the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
+- **Documentation Metrics Logging**: Records session duration, the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
 
 - **Required Tool and File Verification**: Checks for the presence of necessary tools ("bito", "mmdc") and prompt files before starting the documentation process.
 
@@ -109,4 +109,3 @@ To customize the Skip List to fit your project's needs, follow these steps:
 
 5. **Re-run the Script**:
    - Execute the script again to apply the new Skip List settings.
-   
