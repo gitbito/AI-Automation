@@ -261,10 +261,18 @@ extract_module_names_and_associated_objectives_then_call_bito() {
 fix_mermaid_syntax() {
     local mermaid_content="$1"
     local fixed_mermaid_content
-
     # Replace all occurrences of "()" with an empty string
     fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+    echo "$fixed_mermaid_content"
+}
 
+# Function to fix Mermaid diagram syntax using bito AI
+fix_mermaid_syntax_with_bito() {
+    local mermaid_content="$1"
+    # Invoke bito AI with the Mermaid content and extract the Mermaid block
+    local fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+    # Update token usage
+    update_token_usage "$mermaid_content" "$fixed_mermaid_content"
     echo "$fixed_mermaid_content"
 }
 
@@ -272,23 +280,59 @@ fix_mermaid_syntax() {
 validate_mermaid_syntax() {
     local mermaid_content="$1"
     local temp_mmd_file=$(mktemp)
-
     # Write Mermaid content to a temporary file
     echo "$mermaid_content" > "$temp_mmd_file"
-
     # Attempt to parse the Mermaid diagram using mmdc
     local output=$(mmdc -i "$temp_mmd_file" -o /dev/null 2>&1)
     local status=$?
-
     # Clean up the temporary file
     rm "$temp_mmd_file"
-
     if [ $status -ne 0 ]; then
         echo "Mermaid syntax validation failed. Please check the diagram syntax." >&2
         echo "$output" >&2
         return 1
     fi
     return 0
+}
+
+# Wrapper function for Mermaid diagram validation and fixing
+fix_and_validate_mermaid() {
+    local mermaid_content="$1"
+    
+    # First, try to validate the original Mermaid content
+    if validate_mermaid_syntax "$mermaid_content"; then
+        echo "Mermaid syntax is valid." >&2
+        echo "$mermaid_content"
+        return 0
+    else
+        echo "Original Mermaid syntax is invalid. Attempting to fix..." >&2
+
+        # Attempt to fix the syntax without using bito
+        local fixed_mermaid_content
+        fixed_mermaid_content=$(fix_mermaid_syntax "$mermaid_content")
+
+        # Validate the fixed syntax
+        if validate_mermaid_syntax "$fixed_mermaid_content"; then
+            echo "Fixed Mermaid syntax is valid." >&2
+            echo "$fixed_mermaid_content"
+            return 0
+        else
+            echo "Fixed Mermaid syntax is still invalid. Attempting to fix with bito..." >&2
+
+            # Attempt to fix the syntax using bito
+            fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$mermaid_content")
+
+            # Validate the bito-fixed syntax
+            if validate_mermaid_syntax "$fixed_mermaid_content"; then
+                echo "Bito-fixed Mermaid syntax is valid." >&2
+                echo "$fixed_mermaid_content"
+                return 0
+            else
+                echo "Failed to fix Mermaid syntax even with bito." >&2
+                return 1
+            fi
+        fi
+    fi
 }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
