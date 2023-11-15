@@ -64,7 +64,7 @@ function check_tools_and_files() {
     done
 
     # Exit if any of the required tools are missing
-    if [ ${#missing_tools[@]} -ne 0 ]; then
+    if [ ${#missing_tools[@]} -ne 0 ]; then 
         echo -e "\nError: The following tools are required but the path was not found:"
         for missing_tool in "${missing_tools[@]}"; do
             echo " - $missing_tool"
