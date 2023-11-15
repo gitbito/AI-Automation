@@ -1,0 +1,41 @@
+
+graph TB
+    A[User] -->|Hand Gestures| B[Gesture Recognition]
+    B --> C{mediapipe}
+    C --> D[Hand Detection]
+    C --> E[Landmark Detection]
+    D --> F[Hand Landmarks]
+    E --> F
+    F --> G{spotify_functions}
+    G --> H[Play/Pause]
+    G --> I[Next Song]
+    G --> J[Previous Song]
+    G --> K[Volume Control]
+graph TB
+    subgraph main.py
+        A[Start Capturing] -->|Capture Gesture| B[Gesture Recognition]
+        C[Get User] -->|User Details| D[Spotify Functions]
+    end
+    B --> E[Output Gesture]
+    D --> F[Output User]
+graph TB
+    SpotifyAPI(Spotify API)
+    User(User)
+    spotipy(spotipy_functions.py)
+
+    subgraph Spotify
+        SpotifyAPI
+    end
+
+    subgraph Application
+        spotipy
+    end
+
+    subgraph EndUser
+        User
+    end
+
+    User -- "User Actions (volume adjust, play, pause, next, prev)" --> spotipy
+    spotipy -- "API Calls" --> SpotifyAPI
+    SpotifyAPI -- "Response" --> spotipy
+    spotipy -- "Action Execution" --> User
