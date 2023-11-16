@@ -33,12 +33,22 @@ This powerful tool streamlines the creation of high-level documentation for soft
 
 ## Supported Languages
 
-Supports Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash, and is extensible to other languages.
+Supports Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash, Kotlin and is extensible to other languages.
 
-To add support for a new language, simply add the file extension to the following line in the code extraction prompt:
+To add support for a new language, simply add the file extension to the CSV file "programming_languages.csv".
 
-```bash
-module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' -o -name '*.sh' \))
+```
+py
+c
+cpp
+java
+js
+go
+rs
+rb
+php
+sh
+kt
 ```
 
 ## Prerequisites

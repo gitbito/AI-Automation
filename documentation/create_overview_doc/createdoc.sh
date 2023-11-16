@@ -10,6 +10,9 @@ prompt_folder="AI_Prompts"
 total_input_token_count=0
 total_output_token_count=0
 
+# CSV file with programming language extensions
+lang_csv="programming_languages.csv"
+
 # Function to update token usage
 function update_token_usage() {
     local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
@@ -437,6 +440,22 @@ function generate_mdd_overview() {
     fi
 }
 
+# Function to read extensions from CSV and create the find command
+function create_find_command() {
+    local lang_file="$1"
+    local folder_to_document="$2"
+    local find_command="find \"$folder_to_document\" -type f"
+
+    # Read each line from CSV and append it to the find command
+    while IFS= read -r ext; do
+        find_command="$find_command -o -name \"*.$ext\""
+    done < "$lang_file"
+
+    # Correct the find command by adding parentheses and removing the first '-o'
+    find_command="${find_command/-o /\( } \)"
+    echo "$find_command"
+}
+
 # Capture Start Time
 start_time=$(date +%s)
 
@@ -468,12 +487,14 @@ function main() {
     aggregated_md_file="$docs_folder/High_Level_Doc.md"
 
     # Clear existing aggregated markdown file if it exists
-    if [ -f "$aggregated_md_file" ]; then
-        > "$aggregated_md_file"
-    fi
+    [ -f "$aggregated_md_file" ] && > "$aggregated_md_file"
 
-    # Find all module files with the specified extensions in the provided folder
-    module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' -o -name '*.sh' \))
+    # Use create_find_command to dynamically generate the find command with specified extensions
+    module_files=$(eval $(create_find_command "$lang_csv" "$folder_to_document"))
+
+    # Check if module_files is empty and display a warning if no files are found
+    [ -z "$module_files" ] && echo "Warning: No files found for documentation generation." && return
+
     # Generate high-level documentation for each found module file
     for module_file in $module_files; do
         # generate_individual_module_md "$module_file" "$docs_folder"
