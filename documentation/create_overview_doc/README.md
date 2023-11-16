@@ -33,7 +33,7 @@ This powerful tool streamlines the creation of high-level documentation for soft
 
 ## Supported Languages
 
-Supports Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash, Kotlin and is extensible to other languages.
+Supports Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, Bash, Kotlin and is extensible to other languages.
 
 To add support for a new language, simply add the file extension to the CSV file "programming_languages.csv".
 
