@@ -1,6 +1,6 @@
 # High-Level Documentation Generator
 
-This tool simplifies the process of creating high-level documentation for project directories. It analyzes modules, generates flow maps, tracks usage metrics, and compiles comprehensive documentation.
+This powerful tool streamlines the creation of high-level documentation for software project directories. It analyzes code modules, generates visual flow maps, and compiles comprehensive documentation, all while keeping track of usage metrics.
 
 ## Features
 
@@ -14,29 +14,41 @@ This tool simplifies the process of creating high-level documentation for projec
    - Operational Sequence
    - Performance Factors
    - Reusability and Adaptability
+   - Usage
+   - Assumptions
 
-- **Auto-Retry Logic**: Implements retry mechanisms and sophisticated error handling for the bito command, ensuring reliable documentation generation in unstable environments.
+- **Auto-Retry Logic and Enhanced Error Handling**: Sophisticated error handling and retry mechanisms ensure reliable documentation generation in unstable environments.
 
-- **Visualization with Mermaid.js Flow Maps**: Utilizes AI to generate Mermaid.js scripts that graphically represent module interactions and the flow of code. While the tool has been tested with Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash, you are encouraged to experiment with other languages as well.
+- **Visualization with Mermaid.js Flow Maps and Enhanced Syntax Handling**: AI-generated Mermaid.js scripts graphically represent module interactions, now with enhanced handling and validation of Mermaid diagram syntax. 
 
-- **Mermaid CLI Image Conversion**: Employs the Mermaid CLI to convert Mermaid.js diagrams into images. This feature provides a graphical depiction of the code architecture, enhancing the visual appeal and readability of the documentation.
+- **Mermaid CLI Image Conversion**: Converts Mermaid.js diagrams into images for a visual representation of the code architecture.
 
-- **Skippable Files and Directories**: The tool ignores specific files and directories by default, such as logs, node_modules, .gradle, and more. Adjust the skip list in the script to suit your project needs.
+- **Skippable Files and Directories**: Customizable skip list to ignore specific files and directories during documentation.
 
-- **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching document, complete with visual flow maps.
+- **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching High_Level_Doc, complete with visual flow maps. 
 
-- **Documentation Metrics Logging**: Records the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
+- **Documentation Metrics Logging**: Records session duration, the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
 
-- **Required Tool and File Verification**: The script checks for necessary tools and files before starting. ("bito" "mmdc")
+- **Required Tool and File Verification**: Checks for the presence of necessary tools ("bito", "mmdc") and prompt files before starting the documentation process.
 
 ## Supported Languages
 
-Our code documentation tool is designed with flexibility in mind. It currently includes built-in support for Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, and Bash. However, it's also easily extensible to other programming languages. 
+Supports Python, C, C++, Java, JavaScript, Go, Rust, Ruby, PHP, Bash, Kotlin and is extensible to other languages.
 
-To add support for a new language, simply add the file extension to the following line in the code extraction prompt:
+To add support for a new language, simply add the file extension to the CSV file `programming_languages.csv`.
 
-```bash
-module_files=$(find "$folder_to_document" -type f \( -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.java' -o -name '*.js' -o -name '*.go' -o -name '*.rs' -o -name '*.rb' -o -name '*.php' -o -name '*.sh' \))
+```
+py
+c
+cpp
+java
+js
+go
+rs
+rb
+php
+sh
+kt
 ```
 
 ## Prerequisites
@@ -51,6 +63,7 @@ Also, make sure these prompt files are present in a specified prompt folder (`AI
 
 - `high_level_doc_prompt.txt`
 - `mermaid_doc_prompt.txt`
+- `fix_mermaid_syntax_prompt.txt`
 - `system_introduction_prompt.txt`
 - `system_overview_mermaid_update_prompt.txt`
 
@@ -78,4 +91,31 @@ The directory includes:
 
 ## Skip List
 
-Certain directories and files are skipped during the documentation process. This includes commonly ignored directories like `node_modules`, `logs`, etc., and files with extensions like `.json`, etc. You can update the skip list within the script as per your requirements.
+The Skip List feature enables the exclusion of specific files and directories from the documentation process. By default, the tool ignores common directories like `node_modules` and log files, as well as various temporary or compiled files.
+
+### Updating the Skip List
+By customizing the Skip List, you gain control over the documentation content, ensuring it's concise, relevant, and tailored to showcase the most significant aspects of your project.
+
+To customize the Skip List to fit your project's needs, follow these steps:
+
+1. **Open the Script**:
+   - Edit the `createdoc.sh` script file in a text editor.
+
+2. **Find the Skip Logic**:
+   - Locate the `is_skippable` function, which contains the logic for skipping files and directories.
+
+3. **Adjust the Skip Array**:
+   - Within the `is_skippable` function, identify the `skip_dirs_files` array. This array lists the patterns of files and directories to be skipped.
+   - To modify the array:
+     - Add new patterns by appending strings to the array.
+     - Remove existing patterns by deleting the corresponding strings.
+   - Example modification:
+     ```bash
+     local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js" "init" ".gv" "your_custom_pattern_here")
+     ```
+
+4. **Save the Script**:
+   - After editing, save the changes to the script file.
+
+5. **Re-run the Script**:
+   - Execute the script again to apply the new Skip List settings.

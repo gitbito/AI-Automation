@@ -1,0 +1,2 @@
+Fix the mermaid markdown diagram syntax.
+Write only the resulting mermaid markdown with the corrections.

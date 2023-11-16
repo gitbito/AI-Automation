@@ -1,2 +1,4 @@
-Using the provided Mermaid Markdown script. Ensure the updated overview accurately incorporates the content from the provided script. Place the resulting comprehensive Mermaid diagram within a ```mermaid block ending with ```
-Function calls without parameters should not have empty parenthesis, just use the name rather than with empty ().
+Integrate the provided individual Mermaid Markdown scripts to construct a comprehensive system overview diagram.
+Each script represents a component of the overall system.
+The final output should be a unified, single Mermaid Markdown diagram that cohesively combines all components into a consolidated representation.
+Ensure the result is enclosed within Mermaid Markdown code block delimiters, starting with 'mermaid' and ending with '', and present it as a complete diagram in plain text.
