@@ -144,3 +144,19 @@ To customize the Skip List to fit your project's needs, follow these steps:
 
 5. **Re-run the Script**:
    - Execute the script again to apply the new Skip List settings. The tool will automatically load and use the updated list.
+
+---
+# Additional Note on Mermaid Syntax Handling
+While the current fixes addresses common Mermaid syntax issues related to quotation marks, and empty open parenthesis (), there may still be other syntax errors that could occur in AI-generated Mermaid scripts for flow maps.
+
+In the event of encountering such errors, users can manually correct these in the mermaid code blocks of the documentation. A useful tool for this is the Mermaid live editor, available at Mermaid Live Editor at https://mermaid.live/
+
+This editor allows for easy visualization, editing and correction of Mermaid diagrams.
+
+After manual corrections, continue the documentation process by running 
+
+```mmdc -i High_Level_Doc.md -o High_Level_Doc.md``` 
+
+Inside the directory containing the High-Level Doc markdown file. This command will update the documentation with the corrected diagram images from the mermaid scripts.
+
+We recognize the importance of this issue and are committed to improving Mermaid syntax handling in future updates of the tool.
