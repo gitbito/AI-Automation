@@ -244,6 +244,8 @@ function fix_mermaid_syntax() {
     local fixed_mermaid_content
     # Replace all occurrences of "()" with an empty string
     fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+    # Remove all occurrences of quotations
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
     echo "$fixed_mermaid_content"
 }
 
