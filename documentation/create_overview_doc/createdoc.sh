@@ -13,6 +13,9 @@ total_output_token_count=0
 # CSV file with programming language extensions
 lang_csv="programming_languages.csv"
 
+# File containing skip list
+skip_list_csv="skip_list.csv"
+
 # Function to update token usage
 function update_token_usage() {
     local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
@@ -68,6 +71,19 @@ function check_tools_and_files() {
     done
 
     echo -e "All required tools and files are present. Proceeding...\n" >&2
+}
+
+# Function to read the skip list from the CSV file
+function read_skip_list() {
+    if [ -f "$skip_list_csv" ]; then
+        skip_list=()
+        while IFS=, read -r skip_item; do
+            skip_list+=("$skip_item")
+        done < "$skip_list_csv"
+    else
+        echo "Skip list file $skip_list_csv not found."
+        exit 1
+    fi
 }
 
 # Function to check if a path should be skipped based on predefined patterns
@@ -485,6 +501,9 @@ function main() {
         mkdir "$docs_folder"
     fi
 
+    # Read the skip list from the CSV file
+    read_skip_list
+    
     # Define the path to the aggregated markdown file
     aggregated_md_file="$docs_folder/High_Level_Doc.md"
 
