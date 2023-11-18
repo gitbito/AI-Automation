@@ -259,7 +259,7 @@ function fix_mermaid_syntax() {
     local fixed_mermaid_content
 
     # Remove empty parentheses '()' often incorrectly included by AI
-    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/\.\?()//g'
 
     # Remove all double quotations '"' which can cause syntax errors
     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
@@ -267,8 +267,9 @@ function fix_mermaid_syntax() {
     # Insert space between an opening square bracket '[' and a forward slash '/'
     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\//[ \//g')
 
+    # TODO TESTING
     # Remove all curly braces '{}' which can cause syntax errors
-    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/{//g' | sed 's/}//g')
+    # fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/{//g' | sed 's/}//g')
 
     # Adjust nested square brackets '[]' which can cause syntax errors
     # This change can depend on the specific syntax issues encountered. 
