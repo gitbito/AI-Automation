@@ -1,0 +1,9 @@
+Here is your Mermaid Markdown script:
+
+```mermaid
+graph TD
+A[Client] -->|request| B[Server]
+B -->|response| A
+```
+
+You can add more components to this script to represent your system more comprehensively.
