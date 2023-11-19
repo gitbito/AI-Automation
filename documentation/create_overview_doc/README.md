@@ -93,6 +93,7 @@ The directory includes:
 
 - Documentation Metrics: The script logs session duration and token usage metrics for the AI processing commands. These metrics are recorded in bito_usage_log.txt for reference and analysis.
 
+
 ## Skip List
 
 The Skip List feature allows for the exclusion of specific files and directories from the documentation process, enhancing the tool's flexibility and relevance. With the recent update, the tool now dynamically loads this list from a CSV file, streamlining the process of managing and updating the skip criteria.
