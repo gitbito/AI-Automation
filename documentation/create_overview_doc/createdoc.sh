@@ -13,6 +13,9 @@ total_output_token_count=0
 # CSV file with programming language extensions
 lang_csv="programming_languages.csv"
 
+# File containing skip list
+skip_list_csv="skip_list.csv"
+
 # Function to update token usage
 function update_token_usage() {
     local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
@@ -68,6 +71,19 @@ function check_tools_and_files() {
     done
 
     echo -e "All required tools and files are present. Proceeding...\n" >&2
+}
+
+# Function to read the skip list from the CSV file
+function read_skip_list() {
+    if [ -f "$skip_list_csv" ]; then
+        skip_list=()
+        while IFS=, read -r skip_item; do
+            skip_list+=("$skip_item")
+        done < "$skip_list_csv"
+    else
+        echo "Skip list file $skip_list_csv not found."
+        exit 1
+    fi
 }
 
 # Function to check if a path should be skipped based on predefined patterns
@@ -238,12 +254,28 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     return 1
 }
 
-# Function to fix Mermaid diagram syntax
 function fix_mermaid_syntax() {
     local mermaid_content="$1"
     local fixed_mermaid_content
-    # Replace all occurrences of "()" with an empty string
-    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+
+    # Remove empty parentheses '()' often incorrectly included by AI
+    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/\.\?()//g'
+
+    # Remove all double quotations '"' which can cause syntax errors
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
+
+    # Insert space between an opening square bracket '[' and a forward slash '/'
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\//[ \//g')
+
+    # TODO TESTING
+    # Remove all curly braces '{}' which can cause syntax errors
+    # fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/{//g' | sed 's/}//g')
+
+    # Adjust nested square brackets '[]' which can cause syntax errors
+    # This change can depend on the specific syntax issues encountered. 
+    # As an example, the following line replaces nested square brackets with a single set:
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\([^]]*\)\[\([^]]*\)\]\]/[\1 \2]/g')
+
     echo "$fixed_mermaid_content"
 }
 
@@ -483,6 +515,9 @@ function main() {
         mkdir "$docs_folder"
     fi
 
+    # Read the skip list from the CSV file
+    read_skip_list
+    
     # Define the path to the aggregated markdown file
     aggregated_md_file="$docs_folder/High_Level_Doc.md"
 

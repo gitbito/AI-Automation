@@ -1,0 +1,17 @@
+logs
+node_modules
+dist
+target
+bin
+package-lock.json
+data.json
+build
+.gradle
+.idea
+gradle
+extension.js
+vendor.js
+ngsw.json
+polyfills.js
+init
+.gv
