@@ -267,8 +267,8 @@ function fix_mermaid_syntax() {
     local mermaid_content="$1"
     local fixed_mermaid_content
 
-    # Remove empty parentheses '()' often incorrectly included by AI
-    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/\.\?()//g')
+    # Ensure all empty parentheses are removed in all cases (e.g. '()')
+    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
 
     # Remove all double quotations '"' which can cause syntax errors
     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
