@@ -13,6 +13,20 @@ total_output_token_count=0
 # CSV file with programming language extensions
 lang_csv="programming_languages.csv"
 
+# File containing skip list
+skip_list_csv="skip_list.csv"
+
+# Function to check if the response from bito is valid
+# bito_response_ok that takes the response from bito as an argument and checks if it starts with "Whoops". 
+# If it does, the function will return a non-zero status indicating an error, otherwise, it will return zero, indicating success.
+function bito_response_ok() {
+    local response="$1"
+    if [[ $response == Whoops* ]]; then
+        return 1  # Return non-zero status if response starts with "Whoops"
+    fi
+    return 0  # Return zero status for valid response
+}
+
 # Function to update token usage
 function update_token_usage() {
     local input_tokens=$(echo "$1" | wc -w | awk '{print int($1 * 1.34)}')
@@ -70,6 +84,19 @@ function check_tools_and_files() {
     echo -e "All required tools and files are present. Proceeding...\n" >&2
 }
 
+# Function to read the skip list from the CSV file
+function read_skip_list() {
+    if [ -f "$skip_list_csv" ]; then
+        skip_list=()
+        while IFS=, read -r skip_item; do
+            skip_list+=("$skip_item")
+        done < "$skip_list_csv"
+    else
+        echo "Skip list file $skip_list_csv not found."
+        exit 1
+    fi
+}
+
 # Function to check if a path should be skipped based on predefined patterns
 function is_skippable() {
   local path=$1
@@ -109,9 +136,7 @@ function call_bito_with_retry() {
         # Call bito and capture output
         output=$(echo -e "$input_text" | bito -p "$prompt_file_path")
 
-        # Checking the output length
-        if [[ $(echo "$output" | wc -w) -le 1 ]]; then
-            # Output is insufficient, preparing for retry
+        if ! bito_response_ok "$output"; then
             echo "Attempt $attempt: bito call for file '$filename' completed but returned insufficient content. Retrying in $RETRY_DELAY seconds..." >&2
             sleep $RETRY_DELAY
             ((attempt++))
@@ -143,8 +168,9 @@ function create_module_documentation() {
     local name_of_module=$(basename "$path_to_module")
     local content_of_module=$(<"$path_to_module")
 
-    local high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
-    if [ $? -ne 0 ]; then
+    local high_level_documentation
+    high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
+    if ! bito_response_ok "$high_level_documentation"; then
         echo "High-level documentation creation failed for module: $name_of_module"
         return 1
     fi
@@ -221,8 +247,7 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
         echo "Attempt $attempt: Running bito for module: $current_module" >&2
         bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
 
-        # Check if the output has more than one word
-        if [[ $(echo "$bito_output" | wc -w) -le 1 ]]; then
+        if ! bito_response_ok "$bito_output"; then
             echo "Attempt $attempt: bito command for module: $current_module failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
             sleep $RETRY_DELAY
             ((attempt++))
@@ -238,22 +263,35 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     return 1
 }
 
-# Function to fix Mermaid diagram syntax
 function fix_mermaid_syntax() {
     local mermaid_content="$1"
     local fixed_mermaid_content
-    # Replace all occurrences of "()" with an empty string
-    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+
+    # Remove empty parentheses '()' often incorrectly included by AI
+    fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/\.\?()//g')
+
+    # Remove all double quotations '"' which can cause syntax errors
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
+
+    # Insert space between an opening square bracket '[' and a forward slash '/'
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\//[ \//g')
+
+    # Adjust nested square brackets '[]' which can cause syntax errors
+    # This change can depend on the specific syntax issues encountered. 
+    # As an example, the following line replaces nested square brackets with a single set:
+    fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\([^]]*\)\[\([^]]*\)\]\]/[\1 \2]/g')
+
     echo "$fixed_mermaid_content"
 }
 
 # Function to fix Mermaid diagram syntax using bito AI
 function fix_mermaid_syntax_with_bito() {
-    local mermaid_content="$1"
-    # Invoke bito AI with the Mermaid content and extract the Mermaid block
-    local fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-    update_token_usage "$mermaid_content" "$fixed_mermaid_content"
-    echo "$fixed_mermaid_content"
+    local fixed_mermaid_content
+    fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+    if ! bito_response_ok "$fixed_mermaid_content"; then
+        echo "Error in bito response for fixing mermaid syntax with bito."
+        return 1
+    fi
 }
 
 # Function to validate Mermaid diagram syntax
@@ -302,13 +340,16 @@ function fix_and_validate_mermaid() {
             # Attempt to fix the syntax using bito
             fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$mermaid_content")
 
-            # Validate the bito-fixed syntax
+            # Apply common fixes again after using bito
+            fixed_mermaid_content=$(fix_mermaid_syntax "$fixed_mermaid_content")
+
+            # Validate the bito-fixed and re-fixed syntax
             if validate_mermaid_syntax "$fixed_mermaid_content"; then
-                echo "Bito-fixed Mermaid syntax is valid." >&2
+                echo "Bito re-fixed Mermaid syntax and is valid." >&2
                 echo "$fixed_mermaid_content"
                 return 0
             else
-                echo "Failed to fix Mermaid syntax even with bito." >&2
+                echo "Failed to fix Mermaid syntax even with bito and re-fixing." >&2
                 return 1
             fi
         fi
@@ -483,6 +524,9 @@ function main() {
         mkdir "$docs_folder"
     fi
 
+    # Read the skip list from the CSV file
+    read_skip_list
+    
     # Define the path to the aggregated markdown file
     aggregated_md_file="$docs_folder/High_Level_Doc.md"
 
