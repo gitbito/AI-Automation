@@ -17,17 +17,17 @@ This powerful tool streamlines the creation of high-level documentation for soft
    - Usage
    - Assumptions
 
-- **Auto-Retry Logic and Enhanced Error Handling**: Ensures reliable documentation generation even in unstable environments through sophisticated error handling and retry mechanisms.
+- **Auto-Retry Logic and Enhanced Error Handling**: Sophisticated error handling and retry mechanisms ensure reliable documentation generation in unstable environments.
 
-- **Visualization with Mermaid.js Flow Maps and Enhanced Syntax Handling**: AI-generated visual flow maps to represent module interactions. Now with improved handling of Mermaid diagram syntax, minimizing manual interventions.
+- **Visualization with Mermaid.js Flow Maps and Enhanced Syntax Handling**: AI-generated Mermaid.js scripts graphically represent module interactions, now with enhanced handling and validation of Mermaid diagram syntax. 
 
-- **Mermaid CLI Image Conversion**: Transforms Mermaid.js diagrams into images, offering a clear visual representation of your code architecture.
+- **Mermaid CLI Image Conversion**: Converts Mermaid.js diagrams into images for a visual representation of the code architecture.
 
-- **Skippable Files and Directories**: Customize which files and directories to ignore during documentation via the `skip_list.csv`.
+- **Skippable Files and Directories**: Customizable skip list to ignore specific files and directories during documentation.
 
 - **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching High_Level_Doc, complete with visual flow maps. 
 
-- **Documentation Metrics Logging**: Track your session duration and token usage metrics, recorded in `bito_usage_log.txt`.
+- **Documentation Metrics Logging**: Records session duration, the token usage of the bito command, converting word counts to token counts for accurate usage metrics. Data is logged in bito_usage_log.txt.
 
 - **Required Tool and File Verification**: Checks for the presence of necessary tools ("bito", "mmdc") and prompt files before starting the documentation process.
 
@@ -94,63 +94,28 @@ The directory includes:
 The Skip List feature enables the exclusion of specific files and directories from the documentation process. By default, the tool ignores common directories like `node_modules` and log files, as well as various temporary or compiled files.
 
 ### Updating the Skip List
-
 By customizing the Skip List, you gain control over the documentation content, ensuring it's concise, relevant, and tailored to showcase the most significant aspects of your project.
 
 To customize the Skip List to fit your project's needs, follow these steps:
 
-1. **Open the CSV File**:
-   - Locate and edit the skip_list.csv file, which should be in the same directory as the createdoc.sh script.
+1. **Open the Script**:
+   - Edit the `createdoc.sh` script file in a text editor.
 
-2. **Modify the Skip List**:
-   - Add or remove file or directory patterns you want to exclude.
-   - Each line in the CSV file represents a pattern to be skipped.
-   - Example: To add a custom pattern, simply add a new line with the pattern, like `private_`.
-   - Your modified list might look like this:
-      ```
-      logs
-      node_modules
-      private_
-      dist
-      build
-      .gradle
-      ```
-      Now all files or folders with the pattern `private_` in its name will be ignored in the documentation process.
+2. **Find the Skip Logic**:
+   - Locate the `is_skippable` function, which contains the logic for skipping files and directories.
 
-3. **Save the CSV File**:
-   - After making your changes, save and close the CSV file.
+3. **Adjust the Skip Array**:
+   - Within the `is_skippable` function, identify the `skip_dirs_files` array. This array lists the patterns of files and directories to be skipped.
+   - To modify the array:
+     - Add new patterns by appending strings to the array.
+     - Remove existing patterns by deleting the corresponding strings.
+   - Example modification:
+     ```bash
+     local skip_dirs_files=("logs" "node_modules" "dist" "target" "bin" "package-lock.json" "data.json" "build" ".gradle" ".idea" "gradle" "extension.js" "vendor.js" "ngsw.json" "polyfills.js" "init" ".gv" "your_custom_pattern_here")
+     ```
+
+4. **Save the Script**:
+   - After editing, save the changes to the script file.
 
 5. **Re-run the Script**:
    - Execute the script again to apply the new Skip List settings.
-
-# Note: Occasional Flow Diagram Syntax Errors
-   `While our documentation tool significantly enhances the creation of Mermaid flow diagrams, there may still be instances of syntax errors in AI-generated Mermaid scripts. This is partly due to the inherent complexities and limitations in AI's understanding of specific coding syntaxes.`
-
-## Current Fixes and AI Enhancements
-To mitigate common syntax issues (such as misplaced quotation marks or empty parentheses), we employ AI-enhanced functions alongside traditional scripting methods. Here's an overview of our approach:
-
-### Automated Syntax Corrections
-We use a combination of scripted fixes (`fix_mermaid_syntax`) and AI-driven analysis (`fix_mermaid_syntax_with_bito`) to rectify syntax errors. This two-pronged approach aims to cover a wide range of potential errors:
-- Removing empty parentheses and unnecessary quotes.
-- Adjusting bracket spacing and nested structures.
-- Utilizing the `bito` AI tool for complex syntax fixes.
-
-Despite these measures, some errors may still require manual intervention.
-
-### Manual Corrections
-For errors not automatically corrected, users can manually edit the Mermaid code blocks in the documentation. A helpful resource for this is the [Mermaid Live Editor](https://mermaid.live/), which allows for easy visualization, editing, and correction of Mermaid diagrams.
-
-### Updating Corrected Diagrams
-Once manual corrections are made, you can update the documentation using the following command in the directory containing the High-Level Doc markdown file:
-
-```mmdc -i High_Level_Doc.md -o High_Level_Doc.md```
-
-This command converts the mermaid scripts in your .md documentation to the corrected diagram images.
-
-## Ongoing Improvements
-We acknowledge that our documentation tool is not infallible and appreciate the patience and feedback from our users. Our commitment to enhancing the tool includes:
-- Continuously refining the AI model and scripted fixes based on user feedback and error patterns.
-- Exploring more advanced AI solutions to further reduce the need for manual intervention.
-- Prioritizing user experience by simplifying the correction and validation processes.
-
-Your feedback and contributions play a crucial role in this iterative improvement process. Together, we strive to make this tool more robust and user-friendly with each update.

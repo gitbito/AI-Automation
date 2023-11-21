@@ -1,8 +1,0 @@
-```mermaid
-graph LR
-    A[User] -->|Request| B[System]
-    B -->|Response| A
-    B -->|Read/Write| C[Database]
-    C -->|Data| B
-```
-This is the unified, single Mermaid Markdown diagram that combines all the components into a consolidated representation.
