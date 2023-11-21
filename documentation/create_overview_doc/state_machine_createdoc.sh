@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Log file for storing the token usage information
-log_file="bito_usage_log.txt" 
+log_file="bito_usage_log.txt"
 
 # Directory containing prompt files for NLP tasks
-prompt_folder="AI_Prompts"  
+prompt_folder="AI_Prompts"
 
 # Global variables for session token counts
 total_input_token_count=0
@@ -37,6 +37,7 @@ function update_token_usage() {
 
 # Function to log total token usage and session duration
 function log_token_usage_and_session_duration() {
+    local start_time="$1"
     local duration=$(( $(date +%s) - start_time ))
     echo "-----------------------------------------" | tee -a "$log_file"
     echo "$(date "+%Y-%m-%d %H:%M:%S") - Total Token Usage for Session" | tee -a "$log_file"
@@ -262,6 +263,33 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     echo "Failed to call bito for module: $current_module after $MAX_RETRIES attempts with adequate content." >&2
     return 1
 }
+
+# function fix_mermaid_syntax() {
+#     local mermaid_content="$1"
+#     local fixed_mermaid_content
+
+#     # Ensure all empty parentheses are removed in all cases (e.g. '()')
+#     fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()//g')
+
+#     # Replace '().anything' or '().' with just '.anything' or '.' respectively
+#     fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/()\.\?//g')
+    
+#     # Remove empty parentheses '()' often incorrectly included by AI
+#     fixed_mermaid_content=$(echo "$mermaid_content" | sed 's/\.\?()//g')
+
+#     # Remove all double quotations '"' which can cause syntax errors
+#     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/"//g')
+
+#     # Insert space between an opening square bracket '[' and a forward slash '/'
+#     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\//[ \//g')
+
+#     # Adjust nested square brackets '[]' which can cause syntax errors
+#     # This change can depend on the specific syntax issues encountered. 
+#     # As an example, the following line replaces nested square brackets with a single set:
+#     fixed_mermaid_content=$(echo "$fixed_mermaid_content" | sed 's/\[\([^]]*\)\[\([^]]*\)\]\]/[\1 \2]/g')
+
+#     echo "$fixed_mermaid_content"
+# }
 
 function fix_mermaid_syntax() {
     local mermaid_content="$1"
@@ -492,27 +520,12 @@ function create_find_command() {
     echo "$find_command"
 }
 
-# Capture Start Time
-start_time=$(date +%s)
+# Additional functions that act as 'states' in your state machine
 
-function main() {
-    # Check if required tools and files are present
-    check_tools_and_files
-
-    # Check if a folder name is provided as an argument
-    if [ $# -eq 0 ]; then
-        echo "Please provide a folder name as a command line argument"
-        exit 1
-    fi
-
-    folder_to_document="$1"
-    docs_folder="doc_"$(basename "$folder_to_document")
-
-    # Check if the folder to document exists
-    if [ ! -d "$folder_to_document" ]; then
-        echo "Folder $folder_to_document does not exist"
-        exit 1
-    fi
+# State 1: Generate documentation
+function state_generate_documentation() {
+    local folder_to_document="$1"
+    local docs_folder="doc_"$(basename "$folder_to_document")
 
     # Create a directory for the generated documentation if it doesn't exist
     if [ ! -d "$docs_folder" ]; then
@@ -521,7 +534,7 @@ function main() {
 
     # Read the skip list from the CSV file
     read_skip_list
-    
+
     # Define the path to the aggregated markdown file
     aggregated_md_file="$docs_folder/High_Level_Doc.md"
 
@@ -536,12 +549,39 @@ function main() {
 
     # Generate high-level documentation for each found module file
     for module_file in $module_files; do
-        # generate_individual_module_md "$module_file" "$docs_folder"
         create_module_documentation "$module_file" "$docs_folder"
     done
-    
+
+    # Append additional sections to the aggregated markdown file
+    append_additional_sections_to_aggregated_md "$docs_folder" "$aggregated_md_file"
+
+    # Notify the user that the documentation has been generated
+    echo "Documentation generated in $docs_folder"
+}
+
+# State 2: Generate Mermaid diagrams
+function state_generate_mermaid_diagrams() {
+    local folder_to_document="$1"
+    local md_files=($(find "$folder_to_document" -type f -name "*.md"))
+
+    if [ ${#md_files[@]} -eq 0 ]; then
+        echo "No Markdown files found in $folder_to_document."
+        return 1
+    fi
+
+    for md_file in "${md_files[@]}"; do
+        generate_mermaid_diagram "$md_file"
+    done
+}
+
+# Helper function to append additional sections to aggregated markdown file
+function append_additional_sections_to_aggregated_md() {
+    local docs_folder="$1"
+    local aggregated_md_file="$2"
+    local temp_file=$(mktemp)
+
     # Aggregate individual markdown files into a main document
-    echo "# Module Overview" > "$aggregated_md_file" 
+    echo "# Module Overview" > "$aggregated_md_file"
     for md_file in "$docs_folder"/*_Doc.md; do
         if [ "$md_file" != "$aggregated_md_file" ]; then
             cat "$md_file" >> "$aggregated_md_file"
@@ -552,14 +592,8 @@ function main() {
     local introduction_and_summary=$(extract_module_names_and_associated_objectives_then_call_bito "$aggregated_md_file" "$prompt_folder/system_introduction_prompt.txt")
 
     # Prepend the introduction and summary to the aggregated markdown file
-    # Save the current content of the aggregated file temporarily
-    local temp_file=$(mktemp)
     mv "$aggregated_md_file" "$temp_file"
-
-    # Create a new aggregated file starting with the Markdown-formatted introduction title
     echo -e "# Introduction :\n" > "$aggregated_md_file"
-
-    # Append the introduction and summary
     echo "$introduction_and_summary" >> "$aggregated_md_file"
 
     # Call generate_mdd_overview function here, after all .mdd files are created
@@ -568,8 +602,6 @@ function main() {
     # Append the content of overview.mdd to the aggregated file extracting only the Mermaid diagram block
     if [ -f "$docs_folder/overview.mdd" ]; then
         echo -e "\n# Full System Overview\n" >> "$aggregated_md_file"
-
-        # Extract and append only the Mermaid diagram block
         awk '/^```mermaid$/,/^```$/' "$docs_folder/overview.mdd" >> "$aggregated_md_file"
     else
         echo "Overview file not found or empty."
@@ -580,15 +612,28 @@ function main() {
 
     # Remove the temporary file
     rm "$temp_file"
-
-    # Generate Mermaid diagrams for visual representations overwriting the markdown file with the diagrams
-    generate_mermaid_diagram "$aggregated_md_file"
-
-    # Log Session Duration and Total Token Usage to the log file
-    log_token_usage_and_session_duration
-
-    # Notify the user that the documentation has been generated
-    echo "Documentation generated in $docs_folder"
 }
 
+# Main function with state machine logic
+function main() {
+    # Capture Start Time
+    local start_time=$(date +%s)
+
+    # Check if required tools and files are present
+    check_tools_and_files
+
+    # Argument parsing to decide which state to run
+    while [[ "$#" -gt 0 ]]; do
+        case $1 in
+            --generate-docs) shift; state_generate_documentation "$1" "$start_time"; shift ;;
+            --generate-diagrams) shift; state_generate_mermaid_diagrams "$1" "$start_time"; shift ;;
+            *) echo "Unknown parameter: $1"; exit 1 ;;
+        esac
+    done
+
+    # Log Session Duration and Total Token Usage to the log file
+    log_token_usage_and_session_duration "$start_time"
+}
+
+# Call main with all passed arguments
 main "$@"
