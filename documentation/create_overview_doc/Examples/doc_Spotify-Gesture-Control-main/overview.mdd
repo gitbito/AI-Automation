@@ -1,0 +1,23 @@
+Here is the comprehensive system overview diagram that combines all components into a consolidated representation:
+
+```mermaid
+graph TD
+A[spotify_functions.py]
+B[spotipy]
+C[SpotifyOAuth]
+D[Spotipy object]
+E[User Info]
+F[Volume Control]
+G[Playback Control]
+H[Track Control]
+A --> B
+A --> C
+B --> D
+C --> D
+D --> E
+D --> F
+D --> G
+D --> H
+```
+
+This diagram illustrates the relationships between different components of the system. The arrows represent the flow of data or control from one component to another.
