@@ -1,53 +1,47 @@
 ## Module: spotify_functions.py
-- **Module Name**: The module is named `spotify_functions.py`.
+- **Module Name**: The module name is `spotify_functions.py`.
 
-- **Primary Objectives**: The purpose of this module is to interact with the Spotify API to control playback, adjust volume, and retrieve user information.
+- **Primary Objectives**: The module's purpose is to interact with the Spotify API to manage and control a user's Spotify playback. It provides functions to adjust volume, play or pause music, skip to the next song, and go back to the previous song.
 
-- **Critical Functions**: The main functions include:
-  - `get_user()`: Retrieves the Spotify username of the connected user.
-  - `adjust_volume(vol_percent)`: Adjusts the volume to a given percentage (0-100).
-  - `play_pause()`: Checks the user's current playback status and toggles between play and pause.
-  - `next_song()`: Skips to the next song in the queue.
-  - `prev_song()`: Goes back to the previous song.
+- **Critical Functions**:
+    - `get_user()`: Retrieves the current user's Spotify username.
+    - `adjust_volume(vol_percent)`: Adjusts the volume of the user's Spotify playback.
+    - `play_pause()`: Toggles between playing and pausing the user's Spotify playback based on the current playback status.
+    - `next_song()`: Skips to the next song in the user's Spotify queue.
+    - `prev_song()`: Returns to the previous song in the user's Spotify queue.
 
-- **Key Variables**: The essential variables include:
-  - `SPOTIPY_CLIENT_ID`: Spotify API client ID.
-  - `SPOTIPY_CLIENT_SECRET`: Spotify client secret.
-  - `SPOTIPY_REDIRECT_URI`: URI to redirect after successful login.
-  - `scope`: Permissions for the Spotify API.
-  - `sp`: Spotipy object for interacting with the Spotify API.
+- **Key Variables**:
+    - `SPOTIPY_CLIENT_ID`: The Spotify API client ID.
+    - `SPOTIPY_CLIENT_SECRET`: The Spotify client secret.
+    - `SPOTIPY_REDIRECT_URI`: The redirect URI for Spotify OAuth.
+    - `scope`: The scope of permissions for the Spotify API.
+    - `sp`: The Spotipy object used to interact with the Spotify API.
 
-- **Interdependencies**: This module interacts with the Spotipy library and the Spotify API.
+- **Interdependencies**: This module depends on the Spotipy library to interact with the Spotify API.
 
-- **Core vs. Auxiliary Operations**: The core operations are the functions that control the playback (`play_pause()`, `next_song()`, `prev_song()`) and adjust the volume (`adjust_volume()`). The auxiliary operation is the `get_user()` function, which retrieves the username of the connected Spotify user.
+- **Core vs. Auxiliary Operations**: Core operations include adjusting volume, playing/pausing music, and navigating through songs. Auxiliary operations include getting the current user's Spotify username.
 
-- **Operational Sequence**: The Spotipy object `sp` is initialized first. Then, the other functions can be called as needed.
+- **Operational Sequence**: The Spotipy object is first created with the necessary credentials and scope. Then, the various functions can be called as needed to control the user's Spotify playback.
 
-- **Performance Aspects**: Performance considerations include the speed of the Spotify API responses and the Spotipy library's efficiency.
+- **Performance Aspects**: Performance is largely dependent on the responsiveness of the Spotify API. Proper handling of API responses and errors can improve performance.
 
-- **Reusability**: This module is highly reusable. It can be imported and used in any Python application that needs to control Spotify playback.
+- **Reusability**: This module is highly reusable as it encapsulates the Spotify API's functionality into distinct functions. As long as the necessary credentials are provided, these functions can be imported and used in any other Python script.
 
-- **Usage**: This module can be used in a Python application by importing it and calling its functions. For example, to adjust the volume to 50%, you would call `adjust_volume(50)`.
+- **Usage**: This module can be used in any Python application that needs to control Spotify playback for a user. The functions can be called directly with the necessary parameters.
 
-- **Assumptions**: The module assumes that the Spotify API client ID, client secret, and redirect URI are correctly set. It also assumes that the user has granted the permissions specified in the `scope` variable.
+- **Assumptions**: The module assumes that valid Spotify API credentials are provided and that the user has granted the necessary permissions in the defined scope. It also assumes that the user is currently playing music on Spotify for some functions to work correctly.
 ## Mermaid Diagram
 ```mermaid
-graph TD
-  A[spotify_functions.py]
-  B[spotipy]
-  C[SpotifyOAuth]
-  D[Spotipy object]
-  E[User Info]
-  F[Volume Control]
-  G[Playback Control]
-  H[Track Control]
-
-  A --> B
-  A --> C
-  B --> D
-  C --> D
-  D --> E
-  D --> F
-  D --> G
-  D --> H
+graph LR
+    A[User] --> B[Spotipy Object]
+    B --> C[get_user Function]
+    B --> D[adjust_volume Function]
+    B --> E[play_pause Function]
+    B --> F[next_song Function]
+    B --> G[prev_song Function]
+    C --> H[User Spotify Username]
+    D --> I[Volume Adjustment]
+    E --> J[Playback Status]
+    F --> K[Next Song]
+    G --> L[Previous Song]
 ```

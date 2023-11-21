@@ -1,23 +1,18 @@
-Here is the comprehensive system overview diagram that combines all components into a consolidated representation:
+Certainly, here is the integrated Mermaid Markdown script enclosed within code block delimiters. It represents a consolidated system overview diagram:
 
 ```mermaid
-graph TD
-A[spotify_functions.py]
-B[spotipy]
-C[SpotifyOAuth]
-D[Spotipy object]
-E[User Info]
-F[Volume Control]
-G[Playback Control]
-H[Track Control]
-A --> B
-A --> C
-B --> D
-C --> D
-D --> E
-D --> F
-D --> G
-D --> H
+graph LR
+    A[User] --> B[Spotipy Object]
+    B --> C[get_user Function]
+    B --> D[adjust_volume Function]
+    B --> E[play_pause Function]
+    B --> F[next_song Function]
+    B --> G[prev_song Function]
+    C --> H[User Spotify Username]
+    D --> I[Volume Adjustment]
+    E --> J[Playback Status]
+    F --> K[Next Song]
+    G --> L[Previous Song]
 ```
 
-This diagram illustrates the relationships between different components of the system. The arrows represent the flow of data or control from one component to another.
+This script will generate a flowchart diagram that starts with a user interacting with a Spotipy object, which then branches off into various functions, each leading to a different outcome.

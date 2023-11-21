@@ -1,33 +1,42 @@
 ## Module: main.py
-- **Module Name**: The module name is 'main.py'.
+- **Module Name**: The module is main.py.
 
-- **Primary Objectives**: The primary objective of this module is to integrate gesture recognition and Spotify functions. It authenticates the user, starts gesture capturing, and controls the Spotify account based on the recognized gestures.
+- **Primary Objectives**: The main purpose of this module is to authenticate the user, start the gesture control and capture the user's gestures.
 
 - **Critical Functions**: 
   - `sf.get_user()`: This function is used to get the username and trigger account authentication.
-  - `gr.start_capture()`: This function starts gesture capturing.
+  - `gr.start_capture()`: This function is used to start capturing the user's gestures.
 
-- **Key Variables**: 'username' is the essential variable in this module, which holds the username for account authentication.
+- **Key Variables**: 
+  - `username`: This variable stores the username returned by the `sf.get_user()` function.
 
-- **Interdependencies**: This module interacts with two other modules - 'gesture_recognition' and 'spotify_functions'. It uses functions from these modules to authenticate the user and start capturing gestures.
+- **Interdependencies**: This module depends on two other modules: 
+  - `gesture_recognition` module for capturing the user's gestures.
+  - `spotify_functions` module for getting the user's username and triggering account authentication.
 
-- **Core vs. Auxiliary Operations**: The core operation of this module is to start capturing gestures (`gr.start_capture()`) after the user's authentication (`sf.get_user()`). There are no auxiliary operations in this module.
+- **Core vs. Auxiliary Operations**: 
+  - Core Operations: Getting the username, triggering account authentication, and starting gesture capture.
+  - Auxiliary Operations: Printing the username.
 
-- **Operational Sequence**: The sequence of operations is straightforward. First, the username is fetched and authentication is triggered. Then, gesture capturing is started.
+- **Operational Sequence**: The module first imports the necessary modules. It then triggers account authentication by getting the username using the `sf.get_user()` function. After that, it starts capturing the user's gestures using the `gr.start_capture()` function.
 
-- **Performance Aspects**: The performance of this module is dependent on the 'gesture_recognition' and 'spotify_functions' modules. Any performance considerations would be related to the efficiency and accuracy of gesture recognition and the responsiveness of Spotify functions.
+- **Performance Aspects**: Performance considerations would primarily be the efficiency and accuracy of the gesture recognition and the speed of the authentication process.
 
-- **Reusability**: This module can be reused for any application that requires user authentication followed by gesture recognition. The specific functions for Spotify and gesture recognition can be replaced with other functionalities as per the requirement.
+- **Reusability**: The gesture recognition and spotify functions are encapsulated in their respective modules, which makes them reusable. The main module can also be adapted to use different recognition or function modules.
 
-- **Usage**: This module is used to control a Spotify account using gestures. It is initiated by running the 'main.py' script.
+- **Usage**: This module is used to authenticate a user and start capturing their gestures for control purposes.
 
-- **Assumptions**: The module assumes that the 'gesture_recognition' and 'spotify_functions' modules are correctly implemented and that the user's Spotify account is accessible and can be controlled by the application.
+- **Assumptions**: 
+  - The `sf.get_user()` function will successfully authenticate the user and return a valid username.
+  - The `gr.start_capture()` function will successfully start capturing the user's gestures.
+  - The necessary modules `gesture_recognition` and `spotify_functions` are correctly implemented and imported.
 ## Mermaid Diagram
 ```mermaid
-graph TB
-  A[main.py] --> B[gesture_recognition]
-  A --> C[spotify_functions]
-  B --> D[Start Gesture Capturing]
-  C --> E[Get User]
-  E --> F[Print: Starting gesture control for user]
+graph LR
+    A[main.py] --> B[gesture_recognition]
+    A --> C[spotify_functions]
+    B --> D[Start Gesture Capturing]
+    C --> E[Get User]
+    E --> A
+    D --> A
 ```
