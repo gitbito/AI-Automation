@@ -42,7 +42,7 @@ This section of our repository showcases the extensive capabilities of our high-
 The provided documentation demonstrates our tool's flexibility and precision in catering to a wide spectrum of projects. From the large-scale, open-source MemGPT project to the nuanced and innovative Spotify Hand Gesture project, our tool efficiently manages and presents complex information in a user-friendly manner.
 
 For a deeper dive into these projects and the effectiveness of our documentation tool, visit the respective directories:
-- [MemGPT Documentation](AI-Automation/documentation/create_overview_doc/Examples/production/doc_MemGPT-main/High_Level_Doc.md)
-- [Spotify Gesture Control Documentation](AI-Automation/documentation/create_overview_doc/Examples/hobbyist/doc_Spotify-Gesture-Control-main/High_Level_Doc.md)
+- [MemGPT Documentation](https://github.com/gitbito/AI-Automation/blob/main/documentation/create_overview_doc/Examples/production/doc_MemGPT-main/High_Level_Doc.md)
+- [Spotify Gesture Control Documentation](https://github.com/gitbito/AI-Automation/blob/main/documentation/create_overview_doc/Examples/hobbyist/doc_Spotify-Gesture-Control-main/High_Level_Doc.md)
 
 Through these examples, we aim to showcase the adaptability and comprehensiveness of our high-level documentation tool across varying project scopes and complexities.
