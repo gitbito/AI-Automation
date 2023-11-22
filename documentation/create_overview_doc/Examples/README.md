@@ -18,6 +18,7 @@ This section of our repository showcases the extensive capabilities of our high-
 
 ### Documentation Highlights
 
+- **High Level Overview**: [MemGPT Documentation](https://github.com/gitbito/AI-Automation/blob/main/documentation/create_overview_doc/Examples/production/doc_MemGPT-main/High_Level_Doc.md)
 - **Module Documentation**: Comprehensive markdown files for each module.
 - **Visual Flow Maps**: SVG flow maps using Mermaid.js.
 - **System Overview**: Detailed PNG format system flow map.
@@ -33,6 +34,7 @@ This section of our repository showcases the extensive capabilities of our high-
 
 ### Documentation Highlights
 
+- **High Level Overview**: [Spotify Gesture Control Documentation](https://github.com/gitbito/AI-Automation/blob/main/documentation/create_overview_doc/Examples/hobbyist/doc_Spotify-Gesture-Control-main/High_Level_Doc.md)
 - **Module Documentation**: Detailed markdown files for each module.
 - **Aggregated Documentation**: `High_Level_Doc.md` with combined module information and SVG flow maps.
 - **System Flow Map**: Comprehensive PNG format full system flow map.
