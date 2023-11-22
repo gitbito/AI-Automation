@@ -1,1 +1,1 @@
-Create a basic example of a level-1 Data Flow Diagram (DFD) in Mermaid js syntax.
+Create a basic level-1 Data Flow Diagram (DFD) in Mermaid js syntax.
