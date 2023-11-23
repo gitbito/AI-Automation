@@ -17,13 +17,26 @@ lang_csv="programming_languages.csv"
 skip_list_csv="skip_list.csv"
 
 # Function to check if the response from bito is valid
-# bito_response_ok that takes the response from bito as an argument and checks if it starts with "Whoops". 
-# If it does, the function will return a non-zero status indicating an error, otherwise, it will return zero, indicating success.
+# Checks both the return code and the response content
 function bito_response_ok() {
-    local response="$1"
-    if [[ $response == Whoops* ]]; then
-        return 1  # Return non-zero status if response starts with "Whoops"
+    local ret_code=$1
+    local response=$2
+
+    # Check if return code is non-zero
+    if [[ $ret_code -ne 0 ]]; then
+        return 1  # Return non-zero status for error in return code
     fi
+
+    # Check if response starts with "Whoops"
+    if [[ $response == Whoops* ]]; then
+        return 1  # Return non-zero status for "Whoops" in response
+    fi
+
+    # Check if the response is empty
+    if [[ -z $response ]]; then
+        return 1  # Return non-zero status for empty response
+    fi
+
     return 0  # Return zero status for valid response
 }
 
@@ -118,38 +131,44 @@ function is_skippable() {
   return 1
 }
 
-# Function to call bito with retry logic
+# Function to call the bito command with retry logic.
+# This function handles temporary failures by retrying the bito command a specified number of times.
 function call_bito_with_retry() {
-    local input_text=$1
-    local prompt_file_path=$2
-    local attempt=1
-    local output
-    local MAX_RETRIES=5
-    local RETRY_DELAY=10 # Define this with the appropriate delay in seconds
+    local input_text=$1  # The input text to be sent to bito.
+    local prompt_file_path=$2  # The path to the prompt file for bito.
+    local attempt=1  # Initialize the attempt counter.
+    local output  # Variable to store the output from bito.
+    local MAX_RETRIES=5  # Maximum number of retries.
+    local RETRY_DELAY=10  # Delay in seconds between retries.
 
-    # Extracting filename from the prompt file path for logging
+    # Extract the filename from the prompt file path for logging purposes.
     local filename=$(basename "$prompt_file_path")
 
+    # Loop to attempt calling bito up to MAX_RETRIES times.
     while [ $attempt -le $MAX_RETRIES ]; do
-        # Informing about the start of a new attempt and the file being processed
+        # Log the attempt number and the file being processed.
         echo "Calling bito with retry logic. Attempt $attempt of $MAX_RETRIES with prompt file '$filename'..." >&2
-        # Call bito and capture output
+        
+        # Call bito and capture the standard output only.
         output=$(echo -e "$input_text" | bito -p "$prompt_file_path")
+        local ret_code=$?  # Capture the return code from bito.
 
-        if ! bito_response_ok "$output"; then
+        # Check if the response from bito is valid using the bito_response_ok function.
+        if ! bito_response_ok "$ret_code" "$output"; then
+            # If the response is not valid, log the error and retry after a delay.
             echo "Attempt $attempt: bito call for file '$filename' completed but returned insufficient content. Retrying in $RETRY_DELAY seconds..." >&2
-            sleep $RETRY_DELAY
-            ((attempt++))
+            sleep $RETRY_DELAY  # Wait for RETRY_DELAY seconds before retrying.
+            ((attempt++))  # Increment the attempt counter.
         else
-            # Successful execution with sufficient output
+            # If the response is valid, log the success, output the result, and update token usage.
             echo "Attempt $attempt: Success! bito call for file '$filename' returned sufficient content." >&2
             echo "$output"
-            update_token_usage "$input_text" "$output"
-            return 0
+            update_token_usage "$input_text" "$output"  # Update the token usage statistics.
+            return 0  # Return successfully.
         fi
     done
 
-    # All attempts failed, final error message
+    # If all attempts fail, log an error message and return with an error status.
     echo "All $MAX_RETRIES attempts to call bito with prompt file '$filename' have failed to return adequate content. Exiting with error." >&2
     return 1
 }
@@ -170,7 +189,8 @@ function create_module_documentation() {
 
     local high_level_documentation
     high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
-    if ! bito_response_ok "$high_level_documentation"; then
+    local ret_code=$?
+    if ! bito_response_ok "$ret_code" "$high_level_documentation"; then
         echo "High-level documentation creation failed for module: $name_of_module"
         return 1
     fi
@@ -191,7 +211,7 @@ function create_module_documentation() {
     local markdown_documentation_file="$documentation_directory/${name_of_module}_Doc.md"
     echo -e "## Module: $name_of_module\n$high_level_documentation" >> "$markdown_documentation_file"
     if [[ -n "$mermaid_diagram" && "$mermaid_diagram" =~ [^[:space:]] ]]; then 
-        echo -e "## Mermaid Diagram\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
+        echo -e "## Flow Diagram [via mermaid]\n\`\`\`mermaid\n$mermaid_diagram\n\`\`\`" >> "$markdown_documentation_file"
     fi 
 
     echo -e "Documentation saved to $markdown_documentation_file\n\n"
@@ -246,8 +266,9 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     while [ $attempt -le $MAX_RETRIES ]; do
         echo "Attempt $attempt: Running bito for module: $current_module" >&2
         bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
+         local ret_code=$?
 
-        if ! bito_response_ok "$bito_output"; then
+        if ! bito_response_ok "$ret_code" "$bito_output"; then
             echo "Attempt $attempt: bito command for module: $current_module failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
             sleep $RETRY_DELAY
             ((attempt++))
@@ -283,7 +304,9 @@ function fix_mermaid_syntax() {
 function fix_mermaid_syntax_with_bito() {
     local fixed_mermaid_content
     fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-    if ! bito_response_ok "$fixed_mermaid_content"; then
+    
+    local ret_code=$?
+    if ! bito_response_ok "$ret_code" "$fixed_mermaid_content"; then
         echo "Error in bito response for fixing mermaid syntax with bito."
         return 1
     fi

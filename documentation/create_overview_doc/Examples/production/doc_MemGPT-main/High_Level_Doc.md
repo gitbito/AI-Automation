@@ -1,6 +1,16 @@
 # Introduction :
 
+The system is a sophisticated conversational AI platform powered by advanced AI models like GPT-4 or similar. It comprises numerous modules, each designed to perform specific tasks to facilitate the operation of the AI. 
 
+The system is designed to handle various types of messages including internal monologues, assistant messages, memory messages, system messages, user messages, and function messages. It can also create conversational AI agents that can interact, load and attach data, and process user messages.
+
+The system interacts with various APIs, including the OpenAI API, to generate text based on given prompts and settings. It also includes modules for error handling, managing presets for the agent, generating a JSON schema from a Python function, and testing the functionality of various components of the system.
+
+Additionally, the system includes modules for managing the state of the system in memory, loading data into archival storage, and managing WebSocket connections for real-time, full-duplex communication between the agent and multiple clients.
+
+The system's performance depends on the underlying AI models used and the available system resources. It is designed to be reusable and adaptable for different scenarios by changing the configuration and the initial message from the user. 
+
+The system assumes that the necessary packages are installed and that the environment variables for the models and API keys are set correctly. It also assumes that the user initiates the chat.
 
 # Full System Overview
 
@@ -30,7 +40,7 @@
 
 - **Assumptions**: The main assumption made in this module is that there is a `main` module that has an `app` function which can be run without any arguments.
 
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-2.svg)
 ## Module: agent.py
  Here is a comprehensive analysis of the agent.py module:
@@ -88,7 +98,7 @@
 - Stateful conversation with persistent memory
 - Messages are text-based
 - Using an underlying large language model API
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-3.svg)
 ## Module: agent_autoreply.py
 - **Module Name**: agent_autoreply.py
@@ -121,7 +131,7 @@
 - **Usage**: This module is used to demonstrate how to integrate a MemGPT agent into an AutoGen group chat. It can be used as a template for similar tasks.
 
 - **Assumptions**: The module assumes that the necessary packages (`autogen` and `memgpt`) are installed and that the OPENAI_API_KEY environment variable is set. It also assumes that the user wants to use a GPT-4 model.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-4.svg)
 ## Module: agent_docs.py
 - **Module Name**: The module is named `agent_docs.py`.
@@ -159,7 +169,7 @@
 - **Usage**: This module is used as an example of how to create an AutoGen group chat with MemGPT and documents. It is used by importing the module and running it.
 
 - **Assumptions**: The module assumes that the necessary packages (`autogen` and `memgpt`) are installed and that the environment variable for the OpenAI API key is set. It also assumes that the user wants to initiate the chat with a specific message.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-5.svg)
 ## Module: agent_groupchat.py
 - **Module Name**: agent_groupchat.py
@@ -194,7 +204,7 @@
 - **Usage**: This module is used to simulate a group chat environment where a user interacts with two agents: a product manager and a coder.
 
 - **Assumptions**: The module assumes that the necessary libraries are installed and the environment variables are set correctly. It also assumes that the user initiates the chat.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-6.svg)
 ## Module: airoboros.py
 - **Module Name**: airoboros.py
@@ -226,7 +236,7 @@
 - **Usage**: This module is used to interact with the Airoboros model, handling tasks such as formatting prompts, cleaning function arguments, and transforming model output.
 
 - **Assumptions**: It is assumed that the first message is always from the system, and the role of the message can only be "user", "assistant", or "function". The module also assumes valid JSON format for the input and output.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-7.svg)
 ## Module: api.py
 - **Module Name**: api.py
@@ -249,7 +259,7 @@
 - **Reusability**: The module is highly reusable as it provides a function to interact with the LM Studio API, which can be used in different contexts.
 - **Usage**: This module is used to generate completions for prompts using the LM Studio API.
 - **Assumptions**: The module assumes that the LM Studio API is available and reachable at the provided endpoint. It also assumes that the number of tokens in the prompt does not exceed the context window.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-8.svg)
 ## Module: api.py
 - **Module Name**: api.py
@@ -281,7 +291,7 @@
 - **Usage**: This module is used by importing it and calling the `get_llamacpp_completion` function with the necessary parameters.
 
 - **Assumptions**: The module assumes that the provided endpoint starts with "http://" or "https://". It also assumes that the Llama.cpp server is running and reachable at the provided endpoint.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-9.svg)
 ## Module: api.py
 - **Module Name**: The module is named as `api.py`.
@@ -310,7 +320,7 @@
 - **Usage**: This module is used whenever text generation is required. It is invoked by providing the appropriate parameters to the `get_koboldcpp_completion()` function.
 
 - **Assumptions**: The main assumption made in this module is that the Koboldcpp API is running and reachable at the provided endpoint.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-10.svg)
 ## Module: api.py
 - **Module Name**: The module is named `api.py`.
@@ -344,7 +354,7 @@
 - **Usage**: This module is used by importing it and calling the `get_webui_completion` function with the appropriate parameters.
 
 - **Assumptions**: This module assumes that the OpenAI API is available at the provided endpoint and that it responds with a JSON object that includes a `choices` array with a `text` field. It also assumes that the `settings` and `grammar` parameters are compatible with the API.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-11.svg)
 ## Module: api.py
 - **Module Name**: The module name is `api.py`.
@@ -374,7 +384,7 @@
 - **Usage**: This module is used to interact with the Ollama API, sending a POST request and returning the received response.
 
 - **Assumptions**: The module assumes that the API endpoint is correctly formatted and the API server is reachable. It also assumes that the `model` parameter is not `None`.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-12.svg)
 ## Module: base.py
 - **Module Name**: base.py
@@ -415,7 +425,7 @@
 - **Assumptions**: 
   1. It is assumed that the input parameters for each function are provided in the correct format and type.
   2. It is also assumed that the memory management and persistence components are functioning correctly.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-13.svg)
 ## Module: chat_completion_proxy.py
 - **Module Name**: The module name is "chat_completion_proxy.py".
@@ -447,7 +457,7 @@
 - **Usage**: This module is used to create a drop-in replacement for an agent's ChatCompletion call that runs on an OpenLLM backend.
 
 - **Assumptions**: The module assumes that the context_window, endpoint, and endpoint_type are provided for the `get_chat_completion` function. It also assumes that the endpoint is reachable and returns a valid response.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-14.svg)
 ## Module: cli.py
 - **Module Name**: cli.py
@@ -470,7 +480,7 @@
 - **Reusability**: The module is highly reusable. It's designed to run different agents with various configurations, attach different data sources to the agents, and check the version.
 - **Usage**: This module is used as a command-line interface for interacting with the MemGPT agent.
 - **Assumptions**: The module assumes that the necessary libraries are installed and the agent configurations are set correctly. It also assumes that the data source provided in the `attach` function contains the correct data for the agent.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-15.svg)
 ## Module: cli_config.py
 - **Module Name**: This is the "cli_config.py" module. 
@@ -512,7 +522,7 @@
 - **Usage**: This module is used to configure the MemGPT model and its components. It can be used by calling the `configure()` function, after which the model can be used as per the set configurations.
 
 - **Assumptions**: The module assumes that the necessary environment variables for Azure and OpenAI are set. It also assumes that the directories for personas and humans exist.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-16.svg)
 ## Module: cli_load.py
 - **Module Name**: cli_load.py
@@ -539,7 +549,7 @@
 - **Reusability**: This module is highly reusable as it provides a generic framework for loading data from different sources. The loading functions can be easily adapted for different sources or datasets.
 - **Usage**: The module is used by calling the appropriate load function with the necessary arguments. For example, to load data from a directory, you would call `load_directory()` with the name of the dataset and the directory path.
 - **Assumptions**: The module assumes that the provided data is in a suitable format for the chosen load function. For example, when loading data from a database, it assumes that the database connection parameters are correct. It also assumes that the embedding dimension of the loaded data matches the configuration.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-17.svg)
 ## Module: config.py
  Here is a comprehensive analysis of the config.py module:
@@ -607,7 +617,7 @@
 - **Usage**: To use this module, other modules would import it and then use the TIMEOUT constant. For example, in Python, this might look like: `from constants import TIMEOUT`.
 
 - **Assumptions**: The main assumption here is that TIMEOUT is a suitable name for this constant, and that a value of 30 seconds is appropriate for the timeout in question. Further assumptions might depend on how and where the TIMEOUT constant is used in the rest of the system.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-18.svg)
 ## Module: constants.py
 - **Module Name**: The module is named "constants.py".
@@ -635,7 +645,7 @@
 - **Usage**: Other modules import this module when they need to use the constants it defines. For example, a module that needs to make a request to one of the services would import `DEFAULT_ENDPOINTS` and use it to get the endpoint for the service.
 
 - **Assumptions**: It is assumed that the endpoints and the AI model specified in this module are correct and available. If these values are incorrect or the services or model are not available, it could cause errors in other parts of the application that use these constants.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-19.svg)
 ## Module: constants.py
 - **Module Name**: constants.py
@@ -665,7 +675,7 @@
 - **Usage**: This module is used to provide constants to the rest of the system. Other modules import the required constants from this module.
 
 - **Assumptions**: The module assumes that the directory in which memgpt is stored and the default model will not change. It also assumes that the token limits for the models are fixed.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-20.svg)
 ## Module: constants.py
 **Module Name**: constants.py
@@ -691,7 +701,7 @@
 **Usage**: This module is used by importing the required constants into another module. For example, `from constants import DEFAULT_PORT`.
 
 **Assumptions**: It is assumed that the values of `DEFAULT_PORT` and `CLIENT_TIMEOUT` are suitable for the application's needs and that any changes to these values are made with an understanding of their impact on the rest of the application.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-21.svg)
 ## Module: db.py
 - **Module Name**: db.py
@@ -722,7 +732,7 @@
 - **Usage**: This module is used whenever the system needs to interact with a database, whether it's to store, retrieve, update, or delete data. 
 
 - **Assumptions**: The module assumes that the database URI is provided in the MemGPTConfig. It also assumes that the Postgres database has the vector extension installed, and that the LanceDB database is accessible via the provided URI.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-22.svg)
 ## Module: dolphin.py
 - **Module Name**: dolphin.py
@@ -757,7 +767,7 @@
 - **Usage**: The module is used by calling the Dolphin21MistralWrapper class and using its functions to work with the Dolphin 2.1 Mistral 7b language model.
 
 - **Assumptions**: The module assumes that the input will be in a specific format, and it includes error handling to deal with scenarios where the input does not meet these assumptions.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-23.svg)
 ## Module: embeddings.py
 - **Module Name**: The module name is `embeddings.py`.
@@ -784,7 +794,7 @@
 - **Usage**: This module is used whenever an embedding model is needed. The type of model returned is determined by the `embedding_endpoint_type` in the configuration.
 
 - **Assumptions**: The module assumes that the configuration loaded correctly and that the specified embedding endpoint type is supported. It also assumes that the necessary API keys and endpoints are correctly provided in the configuration.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-24.svg)
 ## Module: errors.py
 - **Module Name**: The module is named `errors.py`.
@@ -808,7 +818,7 @@
 - **Usage**: To use this module, import the required exceptions at the top of the Python file. When an error condition is detected, raise the appropriate exception. In the try/except block where the LLM operation is performed, catch the exception and handle it appropriately, such as by logging the error message and terminating the operation.
 
 - **Assumptions**: The main assumption is that these exceptions will be raised and caught correctly in the rest of the system. It is also assumed that the error messages provided are sufficient to understand and address the error.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-25.svg)
 ## Module: extras.py
 - **Module Name**: extras.py
@@ -845,7 +855,7 @@
   - The HTTP method provided is valid and the URL is accessible.
   - For GET requests, the payload is ignored.
   - The payload for non-GET requests is a valid JSON string.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-26.svg)
 ## Module: functions.py
 - **Module Name**: The module name is `functions.py`.
@@ -873,7 +883,7 @@
 - **Usage**: This module is used to load and manage function sets. It is particularly useful in projects where functions are organized in modules and directories, and there is a need to dynamically load and handle these functions.
 
 - **Assumptions**: The module assumes that all function names within a set are unique. It also assumes that the directories and files it interacts with exist and are accessible.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-27.svg)
 ## Module: generate_embeddings_for_docs.py
 - **Module Name**: The module name is `generate_embeddings_for_docs.py`.
@@ -884,11 +894,11 @@
     - `generate_requests_file(filename)`: This function generates a file of requests which can be fed to the OpenAI API to generate embeddings.
     - `generate_embedding_file(filename, parallel_mode)`: This function generates the embeddings for the documents in the file. It can work in parallel mode or sequential mode.
     - `main()
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-28.svg)
 ## Module: gpt_functions.py
 
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-29.svg)
 ## Module: gpt_summarize.py
 - **Module Name**: The module is named `gpt_summarize.py`.
@@ -943,7 +953,7 @@ Reusability: This module can be reused in any system that requires retrieving sy
 Usage: This module is used to retrieve system text by providing a key as input. It can be used in various applications where dynamic system text is required.
 
 Assumptions: This module assumes that the text files exist in either the "prompts/system/" directory or the "~/.memgpt/system_prompts/" directory. It also assumes that the user has the necessary permissions to read the files.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-30.svg)
 ## Module: humans.py
 - **Module Name**: The module is named humans.py.
@@ -971,7 +981,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: This module can be used by importing it and calling the `get_human_text` function with the appropriate arguments.
 
 - **Assumptions**: This module assumes that the file to be read is a text file and is located either in the provided directory or the examples directory in the current file's directory. It also assumes that the file exists, and if it doesn't, it raises a FileNotFoundError.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-31.svg)
 ## Module: interface.py
 - **Module Name**: interface.py
@@ -1005,7 +1015,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: This module is used to handle and display MemGPT-related events in a user-friendly manner.
 
 - **Assumptions**: The module assumes that all messages are either strings or dictionaries. It also assumes that all messages can be formatted and color-coded for display in the console.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-32.svg)
 ## Module: interface.py
 - **Module Name**: interface.py
@@ -1042,7 +1052,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: The module is used to handle and display messages in a chat-based interface. It is used by creating an instance of the AutoGenInterface class and calling the appropriate methods to handle different types of messages.
 
 - **Assumptions**: It is assumed that messages are provided in a specific format (e.g., as a string or a dictionary). It's also assumed that the colorama module is available for colored terminal text.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-33.svg)
 ## Module: json_parser.py
 - **Module Name**: json_parser.py
@@ -1075,7 +1085,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: This module is used to parse and repair JSON strings in a larger system, likely as part of data preprocessing or cleanup.
 
 - **Assumptions**: The module assumes that the input is a JSON string or can be converted into one. It also assumes that any errors encountered during parsing are due to malformation of the JSON string and can be fixed by one of the repair methods.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-34.svg)
 ## Module: legacy_api.py
 - **Module Name**: The module is named as `legacy_api.py`.
@@ -1108,7 +1118,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: This module can be used in any project that requires text generation based on a prompt and specific settings. The user needs to provide the server endpoint, the prompt, and the settings.
 
 - **Assumptions**: The module assumes that the server endpoint starts with "http://" or "https://", and that the server is running and reachable. It also assumes that the prompt does not exceed the maximum context length.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-35.svg)
 ## Module: legacy_settings.py
 - **Module Name**: The module name is `legacy_settings.py`.
@@ -1135,7 +1145,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: This module is likely used by importing it into other parts of the system. The importing components can then access the settings it provides.
 
 - **Assumptions**: The module seems to assume that the `stopping_strings` are sufficient to signal the end of a text segment. It also assumes that `max_new_tokens` is an appropriate limit for the size of generated text. The commented-out `truncation_length` suggests that there may be an assumption about the maximum length of a text segment.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-36.svg)
 ## Module: local.py
 - **Module Name**: The module is named 'local.py'.
@@ -1178,7 +1188,7 @@ Assumptions: This module assumes that the text files exist in either the "prompt
 - **Usage**: The module is used to handle local data storage and retrieval operations. It is used to add nodes to the index, get nodes from the index, query the index, and save the index.
 
 - **Assumptions**: The module assumes that the embedding model and service context are set up correctly. It also assumes that the nodes pickle file exists if the save path exists.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-37.svg)
 ## Module: main.py
  Here is a comprehensive analysis of the provided Python module `main.py`:
@@ -1235,7 +1245,7 @@ python main.py
 - User will provide inputs via CLI when prompted.
 - `memgpt.agent` and other modules are available to import.
 - Required packages like `questionary` are installed.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-38.svg)
 ## Module: main.py
 Here is the analysis based on the provided code snippet:
@@ -1263,7 +1273,7 @@ Here is the analysis based on the provided code snippet:
 - **Assumptions**: The main assumption here is that the `memgpt.main` module and the `app()` function within it exist and function as expected. Furthermore, it assumes that the `app()` function does not require any arguments.
 
 Please note that this analysis might not be fully accurate or complete due to the limited context and code snippet provided. For a more comprehensive analysis, the full code of the `memgpt.main` module and its `app()` function would be needed.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-39.svg)
 ## Module: memgpt_agent.py
 - **Module Name**: memgpt_agent.py
@@ -1304,7 +1314,7 @@ Please note that this analysis might not be fully accurate or complete due to th
 - **Usage**: This module is used to create a conversational agent that can interact with users, load and attach data, and handle various types of user messages.
 
 - **Assumptions**: The module assumes that the data to be loaded and attached is available and in the correct format. It also assumes that the GPT model is available and properly configured.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-40.svg)
 ## Module: memory.py
  Here is a comprehensive analysis of the memory.py module:
@@ -1365,7 +1375,7 @@ Please note that this analysis might not be fully accurate or complete due to th
 - Appropriate storage backends exist if configured.
 
 In summary, the memory module provides key capabilities for an AI agent to manage both short-term and long-term memories in a performant and reusable manner. The interfaces and config driven design allow flexibility in the underlying implementations.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-41.svg)
 ## Module: openai_parallel_request_processor.py
 - **Module Name**: openai_parallel_request_processor.py
@@ -1399,7 +1409,7 @@ The module is designed to be used from the command line. It takes several comman
 
 - **Assumptions**: 
 The script assumes that the API requests are stored in a JSONL file and that each line of the file is a JSON object with API parameters and an optional metadata field. It also assumes that the API key is stored in an environment variable if it is not provided as a command line argument.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-42.svg)
 ## Module: openai_tools.py
 - **Module Name**: openai_tools.py
@@ -1437,7 +1447,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used whenever interaction with OpenAI's API is required, such as when creating chat completions or embeddings.
 
 - **Assumptions**: The module assumes that the necessary environment variables are set. It also assumes that the OpenAI API will raise a `RateLimitError` when the rate limit is exceeded, and retries the operation in this case.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-43.svg)
 ## Module: persistence_manager.py
 - **Module Name**: persistence_manager.py
@@ -1481,7 +1491,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used in the context of an AI agent that needs to maintain a persistent state across multiple interactions. The state manager is initialized with the agent, and then used to manipulate the agent's memory and messages.
 
 - **Assumptions**: The module assumes that the memory and messages of the agent can be serialized and deserialized using `pickle`. It also assumes that the memory and messages are structured in a way that allows them to be manipulated as lists.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-44.svg)
 ## Module: personas.py
 - **Module Name**: The module is named "personas.py".
@@ -1505,7 +1515,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used when there is a need to fetch persona text from a file. The user can specify the file's name and optionally its directory.
 
 - **Assumptions**: The function assumes that the file exists in the specified directory. If the file does not exist, it will raise a `FileNotFoundError`. It also assumes that the file's content can be read as text.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-45.svg)
 ## Module: presets.py
 - **Module Name**: presets.py
@@ -1523,7 +1533,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Reusability**: This module is highly reusable as it provides a function to create an Agent with any valid preset. The presets can be easily extended or modified for different use cases.
 - **Usage**: This module is used whenever an Agent needs to be created with a specific preset. It's typically used in the setup phase of a conversational AI application.
 - **Assumptions**: This module assumes that all presets are in YAML format and that all specified functions in a preset are available in the function library.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-46.svg)
 ## Module: schema_generator.py
 - **Module Name**: The module is named `schema_generator.py`.
@@ -1547,7 +1557,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: To use this module, import it and call the `generate_schema` function with the function you want to generate a schema for as the argument.
 
 - **Assumptions**: This module assumes that all functions have properly formatted docstrings with parameter descriptions. It also assumes that all parameters have type annotations.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-47.svg)
 ## Module: scrape_docs.py
 - **Module Name**: scrape_docs.py
@@ -1579,7 +1589,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used for processing large amounts of text, particularly documentation generated by Sphinx. It can be run as a standalone Python script.
 
 - **Assumptions**: The module assumes that all .txt files in the specified directory and its subdirectories are valid and can be opened and read without issues. It also assumes that the text in the .txt files can be tokenized using the specified encoding.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-48.svg)
 ## Module: settings.py
 - **Module Name**: The module is named as "settings.py".
@@ -1603,7 +1613,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used by importing it into another module and using the settings defined in the `SIMPLE` dictionary.
 
 - **Assumptions**: The module assumes that the language model has a context length of 8000 tokens, as indicated by the commented out "max_tokens" setting. It also assumes that the `LLM_MAX_TOKENS` constant is defined in the `constants` module.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-49.svg)
 ## Module: settings.py
 - **Module Name**: The module is named as `settings.py`.
@@ -1627,7 +1637,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used by importing it into other modules. The `SIMPLE` dictionary it provides can then be used to access the list of stop words/phrases.
 
 - **Assumptions**: The module assumes that the `constants` module, from which it imports `LLM_MAX_TOKENS`, is available. It also assumes that the stop words/phrases listed in the `SIMPLE` dictionary are sufficient for the program's needs.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-50.svg)
 ## Module: settings.py
 - **Module Name**: The module is named `settings.py`.
@@ -1653,7 +1663,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used to provide configuration settings to other parts of the application that import it.
 
 - **Assumptions**: The module assumes that the `LLM_MAX_TOKENS` constant is defined in the `constants` module. It also assumes that the `stop_sequence` and `max_length` parameters are sufficient for configuring the application.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-51.svg)
 ## Module: settings.py
 - **Module Name**: The module is named as `settings.py`.
@@ -1677,7 +1687,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used to define settings related to text data processing and handling. The `SIMPLE` dictionary can be imported into other modules and its values can be used as per the requirements.
 
 - **Assumptions**: The module assumes that the stopping strings defined in the `SIMPLE` dictionary are sufficient to handle all the required scenarios. Also, it assumes that `LLM_MAX_TOKENS` is defined in the `constants` module.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-52.svg)
 ## Module: settings.py
 - **Module Name**: This module is named `settings.py`.
@@ -1701,7 +1711,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used by importing it into other scripts or modules. The `SIMPLE` dictionary can then be used to access the configuration settings.
 
 - **Assumptions**: The module assumes that the `constants` module and the `LLM_MAX_TOKENS` variable exist and can be imported. It also assumes that the stop sequences and other elements of the `SIMPLE` dictionary are valid and correctly formatted.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-53.svg)
 ## Module: simple_summary_wrapper.py
 - **Module Name**: simple_summary_wrapper.py
@@ -1719,7 +1729,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Reusability**: The module is highly reusable as it can be used to summarize different types of conversations.
 - **Usage**: This module is used to generate summaries from a given set of conversations.
 - **Assumptions**: The module assumes that the conversations are provided in a specific format, and that functions are None when converting chat completion to a prompt.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-54.svg)
 ## Module: storage.py
 - **Module Name**: storage.py
@@ -1759,7 +1769,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used whenever a storage connector is needed to perform operations on passages. The specific usage would depend on the specific storage connector being used.
 
 - **Assumptions**: The module assumes that the storage_type specified in the MemGPTConfig is one of "local", "postgres", or "lancedb". It also assumes that the appropriate storage connector classes are available for import.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-55.svg)
 ## Module: system.py
 - **Module Name**: system.py
@@ -1793,7 +1803,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Reusability**: This module is highly reusable as it provides a standard way to package and return various types of system messages.
 - **Usage**: This module is used whenever a system message needs to be packaged and returned.
 - **Assumptions**: This module assumes that the `utils` and `constants` modules are available and functioning correctly. It also assumes that the necessary arguments will be provided when calling its functions.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-56.svg)
 ## Module: test_cli.py
 - **Module Name**: The module name is `test_cli.py`.
@@ -1821,7 +1831,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used for testing purposes. It can be run as a standalone script or imported into another module.
 
 - **Assumptions**: The module assumes that the `memgpt` program responds correctly to the input provided by the `child` instance. It also assumes that the `memgpt` program terminates cleanly after execution.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-57.svg)
 ## Module: test_json_parsers.py
 - **Module Name**: The module name is `test_json_parsers.py`.
@@ -1845,7 +1855,7 @@ The script assumes that the API requests are stored in a JSONL file and that eac
 - **Usage**: This module is used for testing purposes. It is likely invoked during development or in a continuous integration pipeline to ensure that changes to the JSON parsers do not break their functionality.
 
 - **Assumptions**: The module assumes that the JSON parsers should be able to fix any form of broken JSON. It also assumes that `json.loads()` will fail to parse the test strings.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-58.svg)
 ## Module: test_load_archival.py
 Here is a comprehensive analysis of the provided code module:
@@ -1912,7 +1922,7 @@ Here is a comprehensive analysis of the provided code module:
   - The required dataset ("MemGPT/example_short_stories") is available for loading.
   - The necessary configuration files ("test_config.cfg") are present.
   - The database file ("test.db") exists for loading into the index.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-59.svg)
 ## Module: test_questionary.py
 - **Module Name**: The module name is `test_questionary.py`.
@@ -1936,7 +1946,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for testing purposes, specifically for validating the correct functioning of the `memgpt` program's CLI sequence.
 
 - **Assumptions**: The module assumes that the `memgpt` program's CLI will respond within the set timeout period. It also assumes that the `memgpt` program's CLI will react as expected to the sent commands.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-60.svg)
 ## Module: test_schema_generator.py
 - **Module Name**: The module name is `test_schema_generator.py`.
@@ -1970,7 +1980,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for testing the `generate_schema` function to ensure it correctly generates JSON schemas for different functions.
 
 - **Assumptions**: The module assumes that the `generate_schema` function will throw an error if types are missing or if the docstring is missing. It also assumes that the `generate_schema` function will correctly generate the schema for the tested functions.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-61.svg)
 ## Module: test_storage.py
 - **Module Name**: test_storage.py
@@ -2005,7 +2015,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for testing the functionalities of storage connectors in the MemGPT application.
 
 - **Assumptions**: The module assumes that the required environment variables for the database URLs and OpenAI API keys are set. It also assumes that the required packages are installed and the necessary modules can be imported.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-62.svg)
 ## Module: test_websocket_interface.py
 - **Module Name**: The module is `test_websocket_interface.py`.
@@ -2036,7 +2046,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for testing the WebSocket interface in the MemGPT system.
 
 - **Assumptions**: The module assumes that the WebSocket interface and the MemGPT agent function correctly. It also assumes that the mocked user message and WebSocket connection accurately represent actual user messages and WebSocket connections.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-63.svg)
 ## Module: test_websocket_server.py
 - **Module Name**: The module name is `test_websocket_server.py`.
@@ -2068,7 +2078,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for testing the WebSocket server's handling of configurations and messages. It can be run as part of a test suite to ensure the server behaves as expected.
 
 - **Assumptions**: It is assumed that the server responds appropriately to the sent configuration and message. It is also assumed that the server is running on `localhost` at the `DEFAULT_PORT`.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-64.svg)
 ## Module: utils.py
 - **Module Name**: The name of the module is `utils.py`.
@@ -2096,7 +2106,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used for configuring the memGPT LLM. To use it, you would call `configure_memgpt()` with the appropriate flags.
 
 - **Assumptions**: This module assumes that the memGPT configuration process responds as expected to the sent inputs. It also assumes that the configuration process will terminate and that the exit status will be 0 upon successful completion.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-65.svg)
 ## Module: utils.py
 - **Module Name**: The module is named `utils.py`.
@@ -2130,7 +2140,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used to provide utility functions and classes that are used across different parts of the system. The functions can be imported and used as needed.
 
 - **Assumptions**: The code assumes that the grammar file exists in the specified location. If it does not, a `FileNotFoundError` is raised.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-66.svg)
 ## Module: utils.py
 - **Module Name**: The module is named `utils.py`.
@@ -2157,7 +2167,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used to handle server responses. It checks if the server indicates a stop in listening and then prints the server's response.
 
 - **Assumptions**: It's assumed that the server's response is a dictionary with keys "type" and potentially "message" and "message_type". It's also assumed that the response types and message types are known and limited to those checked in the functions.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-67.svg)
 ## Module: utils.py
 - **Module Name**: utils.py
@@ -2193,7 +2203,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used as a utility module, providing helper functions that can be used throughout the project for various tasks.
 
 - **Assumptions**: The module assumes that the file and directory paths provided to the functions exist. It also assumes that the JSON strings provided to the parse_json function are valid JSON strings.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-68.svg)
 ## Module: utils.py
 - **Module Name**: The module is named `utils.py`.
@@ -2225,7 +2235,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used whenever there is a need to load and validate YAML configuration files in the MEMGPT system.
 
 - **Assumptions**: It is assumed that the YAML files follow a specific format and that all function names in the YAML data are part of a predefined set. It is also assumed that the files are located in specific directories.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-69.svg)
 ## Module: websocket_client.py
 - **Module Name**: websocket_client.py
@@ -2249,7 +2259,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Reusability**: This module can be reused to communicate with any MemGPT server. The agent configuration and user messages can be customized as needed.
 - **Usage**: This module is used as a client to communicate with a MemGPT server. It can be run as a standalone script.
 - **Assumptions**: The module assumes that a MemGPT server is running and accessible at the specified port. It also assumes that the user will input messages when prompted.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-70.svg)
 ## Module: websocket_interface.py
 - **Module Name**: websocket_interface.py
@@ -2286,7 +2296,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used to enable communication between a MemGPT agent and clients over a WebSocket. The clients can send messages to the agent, and the agent can send responses back to the clients.
 
 - **Assumptions**: The module assumes that the WebSocket connections are reliable and that the clients and the agent follow the correct message protocols. It also assumes that the event loop in the synchronous interface can handle the load of the tasks scheduled on it.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-71.svg)
 ## Module: websocket_protocol.py
 - **Module Name**: The module is named as `websocket_protocol.py`.
@@ -2321,7 +2331,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used to handle server-client communication in a WebSocket context. The functions can be used to send different types of messages based on the situation.
 
 - **Assumptions**: The code assumes that the server and client are capable of handling JSON-based messages. It also assumes that an appropriate WebSocket connection exists between the server and client.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-72.svg)
 ## Module: websocket_server.py
 - **Module Name**: websocket_server.py
@@ -2358,7 +2368,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used to create a WebSocket server that can handle various client requests related to AI agents.
 
 - **Assumptions**: The module assumes that the client will send JSON formatted data. It also assumes that the client will send valid commands and that the necessary agent configurations exist when an agent is being created or loaded.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-73.svg)
 ## Module: wrapper_base.py
 - **Module Name**: The module is named `wrapper_base.py`.
@@ -2384,7 +2394,7 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: This module is used by creating a child class and implementing the abstract methods. The child class can then be used to convert between chat completions and LLM outputs.
 
 - **Assumptions**: The module assumes that any class that inherits from it will provide concrete implementations of the abstract methods. It also assumes that the inputs to these methods will be in the expected format.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-74.svg)
 ## Module: zephyr.py
 - **Module Name**: ZephyrMistralWrapper and ZephyrMistralInnerMonologueWrapper
@@ -2419,5 +2429,5 @@ Here is a comprehensive analysis of the provided code module:
 - **Usage**: The module is used by initializing it with the required parameters, calling `chat_completion_to_prompt` with the chat messages and functions, running the model with the generated prompt, and then converting the model's output into a response using `output_to_chat_completion_response`.
 
 - **Assumptions**: The module assumes that the chat messages and functions are in a specific format. It also assumes that the model's output is in JSON format.
-## Mermaid Diagram
+## Flow Diagram [via mermaid]
 ![diagram](./High_Level_Doc-75.svg)
