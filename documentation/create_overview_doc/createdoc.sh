@@ -380,6 +380,7 @@ function generate_mermaid_diagram() {
     fi
 }
 
+# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
 # Updated function with retry logic and bito response check
 function create_mermaid_diagram() {
     local module_name="$1"
