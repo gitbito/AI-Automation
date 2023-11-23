@@ -304,7 +304,9 @@ function fix_mermaid_syntax() {
 function fix_mermaid_syntax_with_bito() {
     local fixed_mermaid_content
     fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-    if ! bito_response_ok "$fixed_mermaid_content"; then
+    
+    local ret_code=$?
+    if ! bito_response_ok "$ret_code" "$fixed_mermaid_content"; then
         echo "Error in bito response for fixing mermaid syntax with bito."
         return 1
     fi
