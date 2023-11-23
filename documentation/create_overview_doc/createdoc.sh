@@ -335,41 +335,32 @@ function validate_mermaid_syntax() {
 function fix_and_validate_mermaid() {
     local mermaid_content="$1"
     
-    # First, try to validate the original Mermaid content
-    if validate_mermaid_syntax "$mermaid_content"; then
-        echo "Mermaid syntax is valid." >&2
-        echo "$mermaid_content"
+    # First, apply the syntax fix regardless of the initial validation
+    local fixed_mermaid_content
+    fixed_mermaid_content=$(fix_mermaid_syntax "$mermaid_content")
+
+    # Then, try to validate the fixed Mermaid content
+    if validate_mermaid_syntax "$fixed_mermaid_content"; then
+        echo "Fixed Mermaid syntax is valid." >&2
+        echo "$fixed_mermaid_content"
         return 0
     else
-        echo "Original Mermaid syntax is invalid. Attempting to fix..." >&2
+        echo "Fixed Mermaid syntax is invalid. Attempting to fix with bito..." >&2
 
-        # Attempt to fix the syntax without using bito
-        local fixed_mermaid_content
-        fixed_mermaid_content=$(fix_mermaid_syntax "$mermaid_content")
+        # Attempt to fix the syntax using bito
+        fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$fixed_mermaid_content")
 
-        # Validate the fixed syntax
+        # Apply common fixes again after using bito
+        fixed_mermaid_content=$(fix_mermaid_syntax "$fixed_mermaid_content")
+
+        # Finally, validate the bito-fixed and re-fixed syntax
         if validate_mermaid_syntax "$fixed_mermaid_content"; then
-            echo "Fixed Mermaid syntax is valid." >&2
+            echo "Bito re-fixed Mermaid syntax and is valid." >&2
             echo "$fixed_mermaid_content"
             return 0
         else
-            echo "Fixed Mermaid syntax is still invalid. Attempting to fix with bito..." >&2
-
-            # Attempt to fix the syntax using bito
-            fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$mermaid_content")
-
-            # Apply common fixes again after using bito
-            fixed_mermaid_content=$(fix_mermaid_syntax "$fixed_mermaid_content")
-
-            # Validate the bito-fixed and re-fixed syntax
-            if validate_mermaid_syntax "$fixed_mermaid_content"; then
-                echo "Bito re-fixed Mermaid syntax and is valid." >&2
-                echo "$fixed_mermaid_content"
-                return 0
-            else
-                echo "Failed to fix Mermaid syntax even with bito and re-fixing." >&2
-                return 1
-            fi
+            echo "Failed to fix Mermaid syntax even with bito and re-fixing." >&2
+            return 1
         fi
     fi
 }
@@ -390,6 +381,7 @@ function generate_mermaid_diagram() {
 }
 
 # Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
+# Updated function with retry logic and bito response check
 function create_mermaid_diagram() {
     local module_name="$1"
     local module_contents="$2"
@@ -399,30 +391,36 @@ function create_mermaid_diagram() {
     local MAX_RETRIES=10
     local RETRY_DELAY=5 # seconds
     local error_message=""
+    local bito_output
     
     while [ $attempt -le $MAX_RETRIES ]; do
-        local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+        echo "Attempt $attempt: Creating Mermaid diagram for module: $module_name" >&2
+        bito_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+        local ret_code=$?
 
-        mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-
-        # Use fix_and_validate_mermaid to fix and validate Mermaid content
-        mermaid_flow_map=$(fix_and_validate_mermaid "$mermaid_flow_map")
-        local fix_and_validate_status=$?
-
-        if [ $fix_and_validate_status -eq 0 ]; then
-            # Mermaid syntax is valid or successfully fixed
-            echo "$mermaid_flow_map"
-            return 0
+        if ! bito_response_ok "$ret_code" "$bito_output"; then
+            echo "Attempt $attempt: Bito call failed or returned insufficient content. Retrying in $RETRY_DELAY seconds..." >&2
+            sleep $RETRY_DELAY
+            ((attempt++))
         else
-            error_message+="Attempt $attempt: Failed to fix or validate Mermaid syntax. Retrying in $RETRY_DELAY seconds...\n"
-        fi
+            mermaid_flow_map=$(echo "$bito_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+            mermaid_flow_map=$(fix_and_validate_mermaid "$mermaid_flow_map")
+            local fix_and_validate_status=$?
 
-        sleep $RETRY_DELAY
-        ((attempt++))
+            if [ $fix_and_validate_status -eq 0 ]; then
+                echo "Mermaid diagram created successfully." >&2
+                echo "$mermaid_flow_map"
+                update_token_usage "$mermaid_definition" "$mermaid_flow_map"
+                return 0
+            else
+                echo "Attempt $attempt: Failed to fix or validate Mermaid syntax. Retrying..." >&2
+                sleep $RETRY_DELAY
+                ((attempt++))
+            fi
+        fi
     done
 
-    echo -e "$error_message"
-    echo "Failed to create Mermaid diagram after $MAX_RETRIES attempts."
+    echo "Failed to create Mermaid diagram for module: $module_name after $MAX_RETRIES attempts."
     return 1
 }
 
