@@ -189,7 +189,8 @@ function create_module_documentation() {
 
     local high_level_documentation
     high_level_documentation=$(call_bito_with_retry "Module: $name_of_module\n---\n$content_of_module" "$prompt_folder/high_level_doc_prompt.txt")
-    if ! bito_response_ok "$high_level_documentation"; then
+    local ret_code=$?
+    if ! bito_response_ok "$ret_code" "$high_level_documentation"; then
         echo "High-level documentation creation failed for module: $name_of_module"
         return 1
     fi
@@ -265,8 +266,9 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     while [ $attempt -le $MAX_RETRIES ]; do
         echo "Attempt $attempt: Running bito for module: $current_module" >&2
         bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
+         local ret_code=$?
 
-        if ! bito_response_ok "$bito_output"; then
+        if ! bito_response_ok "$ret_code" "$bito_output"; then
             echo "Attempt $attempt: bito command for module: $current_module failed or did not return enough content. Retrying in $RETRY_DELAY seconds..." >&2
             sleep $RETRY_DELAY
             ((attempt++))
