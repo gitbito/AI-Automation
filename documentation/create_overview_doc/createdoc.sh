@@ -335,41 +335,32 @@ function validate_mermaid_syntax() {
 function fix_and_validate_mermaid() {
     local mermaid_content="$1"
     
-    # First, try to validate the original Mermaid content
-    if validate_mermaid_syntax "$mermaid_content"; then
-        echo "Mermaid syntax is valid." >&2
-        echo "$mermaid_content"
+    # First, apply the syntax fix regardless of the initial validation
+    local fixed_mermaid_content
+    fixed_mermaid_content=$(fix_mermaid_syntax "$mermaid_content")
+
+    # Then, try to validate the fixed Mermaid content
+    if validate_mermaid_syntax "$fixed_mermaid_content"; then
+        echo "Fixed Mermaid syntax is valid." >&2
+        echo "$fixed_mermaid_content"
         return 0
     else
-        echo "Original Mermaid syntax is invalid. Attempting to fix..." >&2
+        echo "Fixed Mermaid syntax is invalid. Attempting to fix with bito..." >&2
 
-        # Attempt to fix the syntax without using bito
-        local fixed_mermaid_content
-        fixed_mermaid_content=$(fix_mermaid_syntax "$mermaid_content")
+        # Attempt to fix the syntax using bito
+        fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$fixed_mermaid_content")
 
-        # Validate the fixed syntax
+        # Apply common fixes again after using bito
+        fixed_mermaid_content=$(fix_mermaid_syntax "$fixed_mermaid_content")
+
+        # Finally, validate the bito-fixed and re-fixed syntax
         if validate_mermaid_syntax "$fixed_mermaid_content"; then
-            echo "Fixed Mermaid syntax is valid." >&2
+            echo "Bito re-fixed Mermaid syntax and is valid." >&2
             echo "$fixed_mermaid_content"
             return 0
         else
-            echo "Fixed Mermaid syntax is still invalid. Attempting to fix with bito..." >&2
-
-            # Attempt to fix the syntax using bito
-            fixed_mermaid_content=$(fix_mermaid_syntax_with_bito "$mermaid_content")
-
-            # Apply common fixes again after using bito
-            fixed_mermaid_content=$(fix_mermaid_syntax "$fixed_mermaid_content")
-
-            # Validate the bito-fixed and re-fixed syntax
-            if validate_mermaid_syntax "$fixed_mermaid_content"; then
-                echo "Bito re-fixed Mermaid syntax and is valid." >&2
-                echo "$fixed_mermaid_content"
-                return 0
-            else
-                echo "Failed to fix Mermaid syntax even with bito and re-fixing." >&2
-                return 1
-            fi
+            echo "Failed to fix Mermaid syntax even with bito and re-fixing." >&2
+            return 1
         fi
     fi
 }
