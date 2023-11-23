@@ -1,6 +1,16 @@
 # Introduction :
 
+The system is a sophisticated conversational AI platform powered by advanced AI models like GPT-4 or similar. It comprises numerous modules, each designed to perform specific tasks to facilitate the operation of the AI. 
 
+The system is designed to handle various types of messages including internal monologues, assistant messages, memory messages, system messages, user messages, and function messages. It can also create conversational AI agents that can interact, load and attach data, and process user messages.
+
+The system interacts with various APIs, including the OpenAI API, to generate text based on given prompts and settings. It also includes modules for error handling, managing presets for the agent, generating a JSON schema from a Python function, and testing the functionality of various components of the system.
+
+Additionally, the system includes modules for managing the state of the system in memory, loading data into archival storage, and managing WebSocket connections for real-time, full-duplex communication between the agent and multiple clients.
+
+The system's performance depends on the underlying AI models used and the available system resources. It is designed to be reusable and adaptable for different scenarios by changing the configuration and the initial message from the user. 
+
+The system assumes that the necessary packages are installed and that the environment variables for the models and API keys are set correctly. It also assumes that the user initiates the chat.
 
 # Full System Overview
 
