@@ -380,7 +380,7 @@ function generate_mermaid_diagram() {
     fi
 }
 
-# Generates Mermaid diagrams from a markdown file, replacing Mermaid code blocks with the generated diagrams.
+# Updated function with retry logic and bito response check
 function create_mermaid_diagram() {
     local module_name="$1"
     local module_contents="$2"
@@ -390,30 +390,36 @@ function create_mermaid_diagram() {
     local MAX_RETRIES=10
     local RETRY_DELAY=5 # seconds
     local error_message=""
+    local bito_output
     
     while [ $attempt -le $MAX_RETRIES ]; do
-        local full_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+        echo "Attempt $attempt: Creating Mermaid diagram for module: $module_name" >&2
+        bito_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+        local ret_code=$?
 
-        mermaid_flow_map=$(echo "$full_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
-
-        # Use fix_and_validate_mermaid to fix and validate Mermaid content
-        mermaid_flow_map=$(fix_and_validate_mermaid "$mermaid_flow_map")
-        local fix_and_validate_status=$?
-
-        if [ $fix_and_validate_status -eq 0 ]; then
-            # Mermaid syntax is valid or successfully fixed
-            echo "$mermaid_flow_map"
-            return 0
+        if ! bito_response_ok "$ret_code" "$bito_output"; then
+            echo "Attempt $attempt: Bito call failed or returned insufficient content. Retrying in $RETRY_DELAY seconds..." >&2
+            sleep $RETRY_DELAY
+            ((attempt++))
         else
-            error_message+="Attempt $attempt: Failed to fix or validate Mermaid syntax. Retrying in $RETRY_DELAY seconds...\n"
-        fi
+            mermaid_flow_map=$(echo "$bito_output" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+            mermaid_flow_map=$(fix_and_validate_mermaid "$mermaid_flow_map")
+            local fix_and_validate_status=$?
 
-        sleep $RETRY_DELAY
-        ((attempt++))
+            if [ $fix_and_validate_status -eq 0 ]; then
+                echo "Mermaid diagram created successfully." >&2
+                echo "$mermaid_flow_map"
+                update_token_usage "$mermaid_definition" "$mermaid_flow_map"
+                return 0
+            else
+                echo "Attempt $attempt: Failed to fix or validate Mermaid syntax. Retrying..." >&2
+                sleep $RETRY_DELAY
+                ((attempt++))
+            fi
+        fi
     done
 
-    echo -e "$error_message"
-    echo "Failed to create Mermaid diagram after $MAX_RETRIES attempts."
+    echo "Failed to create Mermaid diagram for module: $module_name after $MAX_RETRIES attempts."
     return 1
 }
 
