@@ -1,4 +1,5 @@
 #!/bin/bash
+#set -x
 
 # Log file for storing the token usage information
 log_file="bito_usage_log.txt" 
@@ -509,7 +510,7 @@ function create_find_command() {
     done < "$lang_file"
 
     # Correct the find command by adding parentheses and removing the first '-o'
-    find_command="${find_command/-o /\( } \)"
+    find_command="${find_command/-o /\\( } \)"
     echo "$find_command"
 }
 
