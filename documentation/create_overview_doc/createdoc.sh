@@ -33,7 +33,7 @@ function log_token_usage_and_session_duration() {
 
 function check_tools_and_files() {
     echo "Ensuring all necessary tools and files are available..." >&2
-    local required_tools=("bito")
+    local required_tools=("bito" "code2flow" "dot")
     local required_files=("high_level_doc_prompt.txt" "system_introduction_prompt.txt")
 
     for tool in "${required_tools[@]}"; do
@@ -46,6 +46,14 @@ function check_tools_and_files() {
                     echo "   On Archlinux, install with yay or paru: yay -S bito-cli or paru -S bito-cli"
                     echo "   For Windows, download and install the MSI from Bito's website."
                     echo "   Follow the instructions provided by the installer."
+                    ;;
+                "code2flow")
+                    echo "   Install Code2Flow from: https://github.com/scottrogowski/code2flow"
+                    echo "   Ensure it's accessible in your PATH."
+                    ;;
+                "dot")
+                    echo "   Install Graphviz (dot) from: https://graphviz.org/download/"
+                    echo "   Ensure it's accessible in your PATH."
                     ;;
             esac
             exit 1
