@@ -231,7 +231,7 @@ function generate_flow_chart() {
     local flowchart_file="$flowchart_folder/${module_name}_FlowChart.png"
 
     # Call code2flow to generate the flow chart
-    code2flow "$module_file" -o "$flowchart_file"
+    code2flow "$module_file" -o "$flowchart_file" --hide-legend --no-trimming --verbose --skip-parse-errors
 
     # Check if the flow chart was successfully generated
     if [ -f "$flowchart_file" ]; then
@@ -260,7 +260,7 @@ function generate_flow_chart_for_system() {
 
     # Generate a flowchart for the entire system
     echo "Generating system flowchart..."
-    code2flow "$source_folder" -o "$output_file"
+    code2flow "$source_folder" -o "$output_file" --hide-legend --no-trimming --verbose --skip-parse-errors
 
     # Check if the flowchart was successfully generated
     if [ -f "$output_file" ]; then
