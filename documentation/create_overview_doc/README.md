@@ -19,17 +19,17 @@ This powerful tool streamlines the creation of high-level documentation for soft
 
 - **Auto-Retry Logic and Enhanced Error Handling**: Ensures reliable documentation generation even in unstable environments through sophisticated error handling and retry mechanisms.
 
-- **Visualization with Mermaid.js Flow Maps and Enhanced Syntax Handling**: AI-generated visual flow maps to represent module interactions. Now with improved handling of Mermaid diagram syntax, minimizing manual interventions.
+- **Visualization with Code2Flow**: AI-generated visual flow maps to represent module interactions, configured with flags such as --hide-legend, --no-trimming, --verbose, and --skip-parse-errors for optimal detail and clarity.
 
-- **Mermaid CLI Image Conversion**: Transforms Mermaid.js diagrams into images, offering a clear visual representation of your code architecture.
-
+- **Mermaid CLI Image Conversion**: The tool uses Code2Flow for creating detailed flow maps, offering a clear visual representation of your code architecture.
+- **Customizable Flowchart Generation: Code2Flow** Configured with flags such as --hide-legend, --no-trimming, --verbose, and --skip-parse-errors to optimize the detail and clarity of flowcharts.**
 - **Skippable Files and Directories**: Customize which files and directories to ignore during documentation via the `skip_list.csv`.
 
 - **Comprehensive Documentation**: Generates detailed markdown files for each module and compiles them into an overarching High_Level_Doc, complete with visual flow maps. 
 
 - **Documentation Metrics Logging**: Track your session duration and token usage metrics, recorded in `bito_usage_log.txt`.
 
-- **Required Tool and File Verification**: Checks for the presence of necessary tools ("bito", "mmdc") and prompt files before starting the documentation process.
+- **Required Tool and File Verification**: Checks for the presence of necessary tools ("bito", "code2flow", "dot") and prompt files before starting the documentation process.
 
 ## Supported Languages
 
@@ -51,19 +51,26 @@ sh
 kt
 ```
 
+For flow map generation with Code2Flow, the tool currently supports the following languages, each with specific dependencies:
+
+- JavaScript: Requires Acorn for parsing. Ensure Acorn is installed and accessible in your environment.
+- Ruby: Uses Parser for parsing. Ensure the Parser gem is installed and accessible.
+- PHP: Employs PHP-Parser for parsing. PHP-Parser should be installed and accessible in your environment.
+- Python: No additional dependencies are required for Python projects.
+
+If your project uses a language not supported by Code2Flow for flow map generation, the documentation generation capabilities will still be available, but without the flow map visualization for those specific languages.
+
 ## Prerequisites
 
 Ensure the following tools are installed:
 
 - `bito` : https://github.com/gitbito/CLI
 
-- `mermaidcli` : https://github.com/mermaid-js/mermaid-cli
+- `Code2Flow:` : https://github.com/scottrogowski/code2flow
 
 Also, make sure these prompt files are present in a specified prompt folder (`AI_Prompts` by default):
 
 - `high_level_doc_prompt.txt`
-- `mermaid_doc_prompt.txt`
-- `fix_mermaid_syntax_prompt.txt`
 - `system_introduction_prompt.txt`
 - `system_overview_mermaid_update_prompt.txt`
 
@@ -122,18 +129,6 @@ To customize the Skip List to fit your project's needs, follow these steps:
 
 5. **Re-run the Script**:
    - Execute the script again to apply the new Skip List settings.
-
-## Known Issues and Solutions
-
-### Syntax Errors in Mermaid Diagrams
-- **Issue**: Occasional syntax errors in AI-generated Mermaid diagrams, such as misplaced quotes or empty parentheses.
-- **Current Solutions**:
-  - **Automated Fixes**: Script (`fix_mermaid_syntax`) and AI-driven (`fix_mermaid_syntax_with_bito`) methods are used for common syntax corrections.
-  - **Manual Editing**: For unresolved errors, manual editing can be done using the [Mermaid Live Editor](https://mermaid.live/).
-  - **Update Command**: Post-editing, update diagrams in your markdown documentation using: 
-    ```
-    mmdc -i High_Level_Doc.md -o High_Level_Doc.md
-    ```
 
 ### Ongoing Efforts
 - We're continuously improving our AI models and scripts based on user feedback.
