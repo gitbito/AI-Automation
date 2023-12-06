@@ -1,4 +1,0 @@
-Integrate the provided individual Mermaid Markdown scripts to construct a simple system overview diagram.
-Each script represents a component of the overall system.
-The final output should be a unified, single Mermaid Markdown diagram that cohesively combines all components into a consolidated representation.
-Ensure the result is enclosed within Mermaid Markdown code block delimiters and present it as a complete diagram in plain text.
