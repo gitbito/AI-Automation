@@ -1,6 +1,16 @@
 #!/bin/bash
 #set -x
 
+# Setting some required variables
+BITO_CMD=`which bito`
+BITO_CMD_VEP=""
+BITO_VERSION=`$BITO_CMD -v | awk '{print $NF}'`
+# Compare BITO_VERSION to check if its greater than 3.7
+if awk "BEGIN {exit !($BITO_VERSION > 3.7)}"; then
+       BITO_CMD_VEP="--agent create_overview_doc"
+fi
+
+
 # Log file for storing the token usage information
 log_file="bito_usage_log.txt" 
 
@@ -151,7 +161,7 @@ function call_bito_with_retry() {
         echo "Calling bito with retry logic. Attempt $attempt of $MAX_RETRIES with prompt file '$filename'..." >&2
         
         # Call bito and capture the standard output only.
-        output=$(echo -e "$input_text" | bito -p "$prompt_file_path")
+        output=$(echo -e "$input_text" | bito $BITO_CMD_VEP -p "$prompt_file_path")
         local ret_code=$?  # Capture the return code from bito.
 
         # Check if the response from bito is valid using the bito_response_ok function.
@@ -266,7 +276,7 @@ function extract_module_names_and_associated_objectives_then_call_bito() {
     # Retry logic for calling bito
     while [ $attempt -le $MAX_RETRIES ]; do
         echo "Attempt $attempt: Running bito for module: $current_module" >&2
-        bito_output=$(echo -e "$combined_output" | bito -p "$prompt_file_path")
+        bito_output=$(echo -e "$combined_output" | bito $BITO_CMD_VEP -p "$prompt_file_path")
          local ret_code=$?
 
         if ! bito_response_ok "$ret_code" "$bito_output"; then
@@ -304,7 +314,7 @@ function fix_mermaid_syntax() {
 # Function to fix Mermaid diagram syntax using bito AI
 function fix_mermaid_syntax_with_bito() {
     local fixed_mermaid_content
-    fixed_mermaid_content=$(echo "$mermaid_content" | bito -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
+    fixed_mermaid_content=$(echo "$mermaid_content" | bito $BITO_CMD_VEP -p "$prompt_folder/mermaid_doc_prompt.txt" | awk '/^```mermaid$/,/^```$/{if (!/^```mermaid$/ && !/^```$/) print}')
     
     local ret_code=$?
     if ! bito_response_ok "$ret_code" "$fixed_mermaid_content"; then
@@ -396,7 +406,7 @@ function create_mermaid_diagram() {
     
     while [ $attempt -le $MAX_RETRIES ]; do
         echo "Attempt $attempt: Creating Mermaid diagram for module: $module_name" >&2
-        bito_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito -p "$prompt_folder/mermaid_doc_prompt.txt")
+        bito_output=$(echo -e "Module: $module_name\n---\n$mermaid_definition" | bito $BITO_CMD_VEP -p "$prompt_folder/mermaid_doc_prompt.txt")
         local ret_code=$?
 
         if ! bito_response_ok "$ret_code" "$bito_output"; then
@@ -460,7 +470,7 @@ function generate_mdd_overview() {
                 echo "Attempt $attempt: Processing Mermaid script for $mdd_file" >&2
                 # Use bito to process the Mermaid script
                 temp_file=$(mktemp)
-                echo -e "$mermaid_script" | bito -p "$mermaid_doc_prompt_file" > "$temp_file"
+                echo -e "$mermaid_script" | bito $BITO_CMD_VEP -p "$mermaid_doc_prompt_file" > "$temp_file"
 
                 # Validate the Mermaid script
                 if validate_mermaid_syntax "$(cat "$temp_file")"; then

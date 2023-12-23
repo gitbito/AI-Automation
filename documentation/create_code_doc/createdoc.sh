@@ -1,6 +1,16 @@
 #!/bin/bash
 set +x
 
+# Setting some required variables
+BITO_CMD=`which bito`
+BITO_CMD_VEP=""
+BITO_VERSION=`$BITO_CMD -v | awk '{print $NF}'`
+# Compare BITO_VERSION to check if its greater than 3.7
+if awk "BEGIN {exit !($BITO_VERSION > 3.7)}"; then
+	BITO_CMD_VEP="--agent create_code_doc"
+fi
+
+
 # Check if folder name is provided as command line argument
 if [ $# -eq 0 ]; then
     echo "Please provide folder name as command line argument"
@@ -43,7 +53,7 @@ find "$folder" -type f -name "*.sh" -o -name "*.py" -o -name "*.php" -o -name "*
     # The below command does not work and gives following error
     # Only "-p" flag is applicable for this command. Remove any additional flags and then try again.
 #    bito -p docprmt.txt -f "$file" >> "$file2write"
-     cat $file | bito -p ./prompts/structured_doc.txt > $file2write
+     cat $file | bito -p ./prompts/structured_doc.txt $BITO_CMD_VEP > $file2write
 done
 
 echo "Documentation created in $doc_folder"

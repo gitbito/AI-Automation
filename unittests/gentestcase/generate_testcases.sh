@@ -8,6 +8,16 @@ then
     exit 1
 fi
 
+# Setting some required variables
+BITO_CMD=`which bito`
+BITO_CMD_VEP=""
+BITO_VERSION=`$BITO_CMD -v | awk '{print $NF}'`
+# Compare BITO_VERSION to check if its greater than 3.7
+if awk "BEGIN {exit !($BITO_VERSION > 3.7)}"; then
+       BITO_CMD_VEP="--agent create_code_doc"
+fi
+
+
 # Ensure at least one argument is provided
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 <code_file> [<context_file>...]"
@@ -54,7 +64,7 @@ echo "$prompt" > "$temp_prompt"
 
 echo "Generating unit tests..."
 # Run the bito command with the first prompt
-if ! bito -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > /dev/null; then
+if ! bito $BITO_CMD_VEP -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > /dev/null; then
     echo "Error: The bito command failed."
     rm "$temp_prompt"
     exit 1
@@ -63,7 +73,7 @@ fi
 echo "$prompt2" > "$temp_prompt"
 
 # Run the bito command with the second prompt and store the output
-if ! bito -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > "${filename}.$"; then
+if ! bito $BITO_CMD_VEP -p "$temp_prompt" -f $inputfile_for_ut_gen -c "context.txt" > "${filename}.$"; then
     echo "Error: The bito command failed."
     rm "$temp_prompt"
     exit 1
