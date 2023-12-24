@@ -14,7 +14,7 @@ BITO_CMD_VEP=""
 BITO_VERSION=`$BITO_CMD -v | awk '{print $NF}'`
 # Compare BITO_VERSION to check if its greater than 3.7
 if awk "BEGIN {exit !($BITO_VERSION > 3.7)}"; then
-       BITO_CMD_VEP="--agent create_code_doc"
+       BITO_CMD_VEP="--agent gentestcase"
 fi
 
 
