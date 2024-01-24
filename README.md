@@ -21,3 +21,4 @@ Generate commit messages given a repo path.
 ## Prerequisites
 
 Bito CLI, available [here](https://github.com/gitbito/CLI).
+test
