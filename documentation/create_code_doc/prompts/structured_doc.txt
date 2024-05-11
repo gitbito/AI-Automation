@@ -32,5 +32,5 @@ This is particularly helpful for libraries or tools meant to be used by other de
 
 -When documenting, aim for clarity, brevity, and completeness. Remember, the primary goal is to make the code as understandable and usable as possible for anyone who encounters it in the future.
 
-Using the guidelines above create documentation for code provided below without mentioning any of the guidelines above in documentation and only include required sections in documentation, never have empty sections:
+Using the guidelines above create documentation for code provided below without mentioning any of the guidelines above in documentation and only include required sections in documentation, never have empty sections. The output should be markdown, without markdown code block that can be directly used without any changes and any additional content:
 
