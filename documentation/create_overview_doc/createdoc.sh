@@ -512,15 +512,51 @@ function generate_mdd_overview() {
 function create_find_command() {
     local lang_file="$1"
     local folder_to_document="$2"
+    
+    # Check if language file exists
+    if [ ! -f "$lang_file" ]; then
+        echo "Error: Language file $lang_file not found." >&2
+        return 1
+    fi
+    
+    # Check if file has content
+    if [ ! -s "$lang_file" ]; then
+        echo "Error: Language file $lang_file is empty." >&2
+        return 1
+    fi
+    
+    # Start with base find command for the folder
     local find_command="find \"$folder_to_document\" -type f"
-
-    # Read each line from CSV and append it to the find command
-    while IFS= read -r ext; do
-        find_command="$find_command -o -name \"*.$ext\""
+    
+    # Flag to track if we've added extensions
+    local has_extensions=false
+    local extensions_part=""
+    
+    # Read each line from CSV and build the extensions part of the command
+    while IFS= read -r ext || [ -n "$ext" ]; do
+        # Remove any carriage returns that might be present
+        ext=$(echo "$ext" | tr -d '\r')
+        
+        # Skip empty lines
+        [ -z "$ext" ] && continue
+        
+        if [ "$has_extensions" = false ]; then
+            extensions_part=" -name \"*.$ext\""
+            has_extensions=true
+        else
+            extensions_part="$extensions_part -o -name \"*.$ext\""
+        fi
     done < "$lang_file"
-
-    # Correct the find command by adding parentheses and removing the first '-o'
-    find_command="${find_command/-o /\\( } \)"
+    
+    # Check if we found any extensions
+    if [ "$has_extensions" = false ]; then
+        echo "Error: No valid extensions found in $lang_file" >&2
+        return 1
+    fi
+    
+    # Add parentheses around the extensions part
+    find_command="$find_command \\( $extensions_part \\)"
+    
     echo "$find_command"
 }
 
