@@ -1,0 +1,4 @@
+task_id,record_id,task_name,task_description,owner,priority,status,start_date,due_date,completed_date,dependencies,evidence_file
+T-001,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Verify authenticity,Confirm issuer and document legitimacy via official Treasury channel,Compliance Lead,High,Open,2026-04-08,2026-04-10,,None,03_Verification/authenticity_check_notes.md
+T-002,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Obtain final signed copy,Request executed signed version if placeholder copy only,Legal Lead,High,Open,2026-04-08,2026-04-12,,T-001,03_Verification/signature_validation_log.csv
+T-003,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Collect referenced attachments,Obtain guarantee framework and project outline attachments,Operations Lead,High,Open,2026-04-08,2026-04-11,,T-001,05_Attachments_Referenced/

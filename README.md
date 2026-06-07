@@ -1,7 +1,7 @@
 # AI Automations
 Intelligent AI automations using the Bito CLI and other tools.  Please use them or customize them to your needs!
 
-Four intelligent automations are available currently:
+Five intelligent automations are available currently:
 
 ## [Documentation](https://github.com/gitbito/AI-Automation/tree/main/documentation/)
 Several different automations. Provide Bito CLI a directory and it will automatically provide a detailed overview, visualization, and documentation for each file including summary of the file, dependencies, documentation regarding class/modules, function/methods, etc.  Works in over 50+ programming languages, and documentation can be generated in over 50 spoken languages (English, German, Chinese, etc).
@@ -17,6 +17,11 @@ This Python script uses the Bito CLI to generate release notes based on the diff
 
 ## [Generate Commit Messages](https://github.com/gitbito/AI-Automation/tree/main/git/commit_msg)
 Generate commit messages given a repo path.
+
+
+
+## [Objective Data Manager](./operations/objective_data_manager)
+Build and maintain an objective-focused datastore that tracks permissions, submissions, government-guaranteed lending records, a full file inventory (size, timestamps, hashes), linked file placement plans, and progressive execution steps. Useful for organizing execution data, exporting all records, and proving what was submitted and when.
 
 ## Prerequisites
 

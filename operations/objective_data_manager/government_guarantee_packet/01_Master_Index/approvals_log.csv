@@ -1,0 +1,5 @@
+approval_id,record_id,approval_stage,approver_name,approver_role,status,decision_date,notes
+A-001,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Authenticity,[],Compliance Lead,Pending,,
+A-002,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Legal Review,[],Counsel,Pending,,
+A-003,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Compliance Signoff,[],Compliance Director,Pending,,
+A-004,TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE,Submission Authorization,[],Program Director,Pending,,

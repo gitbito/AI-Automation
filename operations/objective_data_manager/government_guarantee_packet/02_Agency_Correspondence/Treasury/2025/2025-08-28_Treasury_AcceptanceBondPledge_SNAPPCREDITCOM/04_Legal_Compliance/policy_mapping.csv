@@ -1,0 +1,6 @@
+clause_id,document_clause,control_owner,control_action,evidence_required,frequency,status
+C-001,Treasury accepts pledge of U.S. Treasury bonds,Legal,Validate acceptance language and enforceability,Legal memo + review notes,One-time,Open
+C-002,Face value equals outstanding triggered loan amounts,Finance,Reconcile pledge values to outstanding balances,Reconciliation workbook + signoff,Per trigger event,Open
+C-003,Bonds may be held or banked until maturity,Treasury Ops,Track custody/holding records,Custody statements,Monthly,Open
+C-004,Bond attachment information due within 60 days of realized payout,Compliance,Monitor payout events and deadline submissions,Submission receipt + timestamp,Per payout event,Open
+C-005,Treasury incurs no loss / obligations fully secured,Risk,Validate collateral sufficiency and guarantee conditions,Risk assessment report,Per trigger event,Open
