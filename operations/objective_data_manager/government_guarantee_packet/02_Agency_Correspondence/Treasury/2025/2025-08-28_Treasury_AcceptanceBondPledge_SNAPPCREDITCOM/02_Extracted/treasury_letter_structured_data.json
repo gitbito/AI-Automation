@@ -1,0 +1,31 @@
+{
+  "record_id": "TREASURY-2025-08-28-SNAPPCREDITCOM-ACCEPTANCE",
+  "document_type": "Government Agency Letter",
+  "agency_name": "United States Department of the Treasury",
+  "agency_address": "1500 Pennsylvania Avenue NW, Washington, D.C. 20220",
+  "document_date_iso": "2025-08-28",
+  "recipient": {
+    "organization": "SNAPPCREDITCOM (Non-Profit)",
+    "care_of": "Enzo Caprelli",
+    "address": "700 E Lake Dr, Unit 11, Orange, CA 92866-2732"
+  },
+  "subject": "Acceptance of Treasury Bond Pledge for Triggered Guarantees",
+  "key_terms": [
+    "Treasury accepts pledge of U.S. Treasury bonds.",
+    "Face value equals outstanding loan amounts for triggered guarantees.",
+    "Bonds may be held or banked until maturity.",
+    "Bond attachment information due within 60 days of any realized payout.",
+    "Treasury incurs no loss and obligations remain fully secured."
+  ],
+  "signatory": {
+    "name": "Jane M. Thornton",
+    "title": "Director, CDFI Programs"
+  },
+  "signature_status": "Placeholder observed in provided image",
+  "cc": [
+    "Office of Financial Institutions, Treasury Department"
+  ],
+  "attachments_mentioned": [
+    "Supporting documents describing the general guarantee framework and project outlines"
+  ]
+}
